@@ -35,6 +35,14 @@ mod routes;
 
 pub type CurrentSession = Session<RoundRobin<TcpConnectionPool<NoneAuthenticator>>>;
 
+fn strip_comment<'a>(input: &'a str, markers: &[char]) -> &'a str {
+  input
+    .find(markers)
+    .map(|idx| &input[..idx])
+    .unwrap_or(input)
+    .trim()
+}
+
 fn start_db_session(addr: String) -> Arc<CurrentSession> {
   info!("Starting db session for worker");
 
@@ -45,7 +53,11 @@ fn start_db_session(addr: String) -> Arc<CurrentSession> {
     new_session(&cluster_config, RoundRobin::new())
       .expect("session should be created")
   );
-  _session.query("USE dt_master;").unwrap();
+
+  match _session.query("USE dt;") {
+    Err(_) => println!("Database not initiated."),
+    Ok(_) => println!("Set db.")
+  }
   
   _session
 }

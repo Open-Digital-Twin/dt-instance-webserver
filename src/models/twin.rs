@@ -28,12 +28,15 @@ pub struct ElementRegister {
 
 pub struct Source {
   pub id: i64,
-  pub name: String
+  pub name: String,
+  pub element: i64
+  // type
 }
 
 pub struct SourceData {
-  pub timestamp: DateTime,
-  pub value: String
+  pub source: i64,
+  pub timestamp: DateTime<Utc>,
+  pub value: String,
 }
 
 
