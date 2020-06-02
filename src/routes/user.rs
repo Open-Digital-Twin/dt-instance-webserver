@@ -17,6 +17,8 @@ use argon2::{self, Config};
 use rand::{ thread_rng, Rng };
 use rand::distributions::Alphanumeric;
 
+use log::{info};
+
 // use crate::routes::user::{IUserRepository, UserRepository};
 // use actix_web::http::StatusCode;
 // use actix_web::{post, get, web, HttpRequest, HttpResponse};
@@ -25,7 +27,7 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 
 #[post("/login")]
 async fn login(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Environment>, user_login: web::Json<UserLogin>) -> HttpResponse {
-  let _usr = get_user(session.clone(), user_login.email.clone());
+  let _usr = get_user_from_email(session.clone(), user_login.email.clone());
 
   match _usr {
     Err(_) => {
@@ -65,7 +67,7 @@ fn authenticate(_login: UserLogin, user: User, _env: &Environment) -> Result<Str
     }
     
     let claim = Claims {
-      sub: user.email,
+      sub: serde_json::to_string(&user).unwrap(),
       exp: _date.timestamp() as usize,
     };
     
@@ -108,7 +110,7 @@ fn verify_hash(password: &String, hash: &String) -> bool {
 
 #[post("/register")]
 async fn register(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Environment>, user: web::Json<Register>) -> HttpResponse {
-  let _usr = get_user(session.clone(), user.email.clone());
+  let _usr = get_user_from_email(session.clone(), user.email.clone());
 
   match _usr {
     Ok(user) => HttpResponse::Ok().json(Response {
@@ -126,6 +128,8 @@ async fn register(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Envir
         )
       ).expect("Inserted new user");
 
+      info!("New user {}.", user.email);
+
       // TODO: Handle creation error;
 
       HttpResponse::Ok().json(Response {
@@ -136,7 +140,7 @@ async fn register(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Envir
   }
 }
 
-fn get_user(session: web::Data<Arc<CurrentSession>>, email: String) -> Result<User, String> {
+pub fn get_user_from_email(session: web::Data<Arc<CurrentSession>>, email: String) -> Result<User, String> {
   let rows = session.query_with_values(
     "SELECT * FROM user WHERE email = ? ALLOW FILTERING",
     query_values!(email)
@@ -151,7 +155,6 @@ fn get_user(session: web::Data<Arc<CurrentSession>>, email: String) -> Result<Us
       Err(_) => return Err("Could not convert rows to User model.".to_string())
     };
 
-    println!("User {}.", usr.email);
     return Ok(usr);
   }
   return Err("No user with selected email".to_string());
@@ -187,19 +190,17 @@ fn get_user(session: web::Data<Arc<CurrentSession>>, email: String) -> Result<Us
 //   }
 // }
 
-#[get("/temp")]
-async fn temp(_auth: AuthValidator) -> HttpResponse {
-  println!("opa");
-  HttpResponse::Ok().json(Response {
-    status: true,
-    message: "opa".to_string()
-  })
-}
+// #[get("/temp")]
+// async fn temp(_auth: AuthValidator) -> HttpResponse {
+//   println!("{}", _auth.user.email);
 
-
+//   HttpResponse::Ok().json(Response {
+//     status: true,
+//     message: "opa".to_string()
+//   })
+// }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
   cfg.service(login);
   cfg.service(register);
-  cfg.service(temp);
 }
