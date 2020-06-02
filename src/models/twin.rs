@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 use cdrs::frame::IntoBytes;
 use cdrs::types::from_cdrs::FromCDRSByName;
 use cdrs::types::prelude::*;
-use chrono::prelude::*;
 
 #[derive(Serialize, Deserialize, Clone, Debug, IntoCDRSValue, TryFromRow, PartialEq)]
 struct Twin {

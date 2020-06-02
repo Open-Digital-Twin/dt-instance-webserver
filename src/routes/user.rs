@@ -22,7 +22,7 @@ use log::{info};
 // use crate::routes::user::{IUserRepository, UserRepository};
 // use actix_web::http::StatusCode;
 // use actix_web::{post, get, web, HttpRequest, HttpResponse};
-use actix_web::{get, post, web, HttpResponse};
+use actix_web::{post, web, HttpResponse};
 use jsonwebtoken::{encode, EncodingKey, Header};
 
 #[post("/login")]

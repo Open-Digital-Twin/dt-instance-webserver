@@ -11,7 +11,7 @@ RUN cargo build --release
 # Force the build.rs script to run by modifying it
 RUN echo " " >> build.rs
 COPY ./src ./src
-RUN cargo build --release
+RUN cargo build --release --verbose
 
 # Push built release to slim container
 FROM debian:buster-slim

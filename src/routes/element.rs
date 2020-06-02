@@ -28,8 +28,8 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 /// Element is a general definition for a collection of "things" that define a Twin.
 /// Elements can include other elements, like devices.
 /// Elements have the ability to define multiple sources of data (device sensors, entry points of data).
-#[put("/element")]
-async fn create_element(
+#[put("/")]
+async fn put_element(
   _auth: AuthValidator,
   _env: web::Data<Environment>,
   session: web::Data<Arc<CurrentSession>>,
@@ -40,7 +40,7 @@ async fn create_element(
     twin: _env.twin_instance.to_string(),
     name: element.name.to_string(),
     parent: element.parent.to_string(), // optional parent element
-    created_at: 'toTimestamp()
+    created_at: "toTimestamp(now())"
   };
 
   match insert_element(session, _element) {
@@ -93,15 +93,15 @@ fn insert_element(session: web::Data<Arc<CurrentSession>>, element: Element) -> 
 }
 
 fn delete_element_by_id(session: web::Data<Arc<CurrentSession>>, id: String, twin: String) -> Result<String, String> {
-  const r = session.query_with_values(
+  let r = session.query_with_values(
     "DELETE FROM element WHERE id = ? AND twin = ?",
     query_values!("id" => id, "twin" => twin)
   )
     .expect("Delete by id the element of twin");
   
   match r {
-    Ok(_) => Ok(format!("Success deleting element {}.", id),
-    Err(_) => Err("Error deleting element."),
+    Ok(_) => Ok(format!("Success deleting element {}.", id)),
+    Err(_e) => Err(format!("Error deleting element.")),
   }  
 }
 
@@ -113,7 +113,7 @@ fn delete_element_by_id(session: web::Data<Arc<CurrentSession>>, id: String, twi
 // insert_data
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
-  cfg.service(create_element);
+  cfg.service(put_element);
   // cfg.service(login);
   // cfg.service(register);
 }
