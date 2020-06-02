@@ -35,29 +35,36 @@ async fn create_element(
   session: web::Data<Arc<CurrentSession>>,
   element: web::Json<ElementRegister>
 ) -> HttpResponse {
-  let _element = get_element_by_name(session.clone(), element.name.clone(), _env.twin_instance);
+  let _element = Element {
+    id: uuid::Uuid::new_v4().to_string(),
+    twin: _env.twin_instance.to_string(),
+    name: element.name.to_string(),
+    parent: element.parent.to_string(), // optional parent element
+    created_at: 'toTimestamp()
+  };
 
-  // if no element, create element.
-  // else, return error.
+  match insert_element(session, _element) {
+    Ok(element) => {
+      HttpResponse::Ok().json(Response {
+        message: format!("Success in creating element {}.", element.name.to_string()),
+        status: true
+      })
+    },
+    Err(_) => {
+      HttpResponse::Ok().json(Response {
+        message: format!("Error in creating element."),
+        status: false
+      })
+    }
+  }
 }
 
-// get_element_by_id
-// update_element_by_id
-// delete_element_by_id
-
-// create_source
-// update_source
-// delete_source
-// clear_source_data (Delete all from timestamp interval)
-
-// insert_data
-
-fn get_element_by_name(session: web::Data<Arc<CurrentSession>>, name: String, twin: i64) -> Result<User, String> {
+fn get_element_by_id(session: web::Data<Arc<CurrentSession>>, id: String, twin: String) -> Result<User, String> {
   let rows = session.query_with_values(
-    "SELECT * FROM element WHERE name = ? AND twin = ? ALLOW FILTERING",
-    query_values!("name" => name, "twin" => twin)
+    "SELECT * FROM element WHERE id = ? AND twin = ? ALLOW FILTERING",
+    query_values!("id" => id, "twin" => twin)
   )
-    .expect("select by name the element of twin")
+  .expect("select by id the element of twin")
     .get_body().unwrap()
     .into_rows().unwrap();
 
@@ -66,11 +73,44 @@ fn get_element_by_name(session: web::Data<Arc<CurrentSession>>, name: String, tw
       Ok(_model) => _model,
       Err(_) => return Err("Could not convert rows to Element model.".to_string())
     };
-
     return Ok(element);
   }
-  return Err("No element with selected name on this twin".to_string());
+  return Err("No element with informed id on this twin".to_string());
 }
+
+fn insert_element(session: web::Data<Arc<CurrentSession>>, element: Element) -> Result<Element, String> {
+  let r = session.query_with_values(
+    "INSERT INTO element (id, twin, name, created_at, parent) VALUES (?, ?, ?, ?, ?)",
+    element.to_query()
+  ).expect("Inserted new element");
+
+  info!("New element {}:{} of twin {}.", element.id, element.name, element.twin);
+
+  match r {
+    Ok(_) => Ok(element),
+    Err(_) => Err("Error inserting element.")
+  }
+}
+
+fn delete_element_by_id(session: web::Data<Arc<CurrentSession>>, id: String, twin: String) -> Result<String, String> {
+  const r = session.query_with_values(
+    "DELETE FROM element WHERE id = ? AND twin = ?",
+    query_values!("id" => id, "twin" => twin)
+  )
+    .expect("Delete by id the element of twin");
+  
+  match r {
+    Ok(_) => Ok(format!("Success deleting element {}.", id),
+    Err(_) => Err("Error deleting element."),
+  }  
+}
+
+// create_source
+// update_source
+// delete_source
+// clear_source_data (Delete all from timestamp interval)
+
+// insert_data
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
   cfg.service(create_element);
