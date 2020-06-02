@@ -55,8 +55,8 @@ fn start_db_session(addr: String) -> Arc<CurrentSession> {
   );
 
   match _session.query("USE dt;") {
-    Err(_) => println!("Database not initiated."),
-    Ok(_) => println!("Set db.")
+    Err(_) => info!("Database not initiated."),
+    Ok(_) => info!("Set db as dt.")
   }
   
   _session

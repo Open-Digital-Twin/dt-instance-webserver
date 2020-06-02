@@ -21,7 +21,7 @@ pub struct UserLogin {
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Claims {
-  pub sub: String,
+  pub sub: String, // Serialized User
   pub exp: usize
 }
 
