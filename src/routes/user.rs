@@ -17,12 +17,12 @@ use argon2::{self, Config};
 use rand::{ thread_rng, Rng };
 use rand::distributions::Alphanumeric;
 
-use log::{info};
+use log::{info, error};
 
 // use crate::routes::user::{IUserRepository, UserRepository};
 // use actix_web::http::StatusCode;
 // use actix_web::{post, get, web, HttpRequest, HttpResponse};
-use actix_web::{post, web, HttpResponse};
+use actix_web::{get, post, web, HttpResponse};
 use jsonwebtoken::{encode, EncodingKey, Header};
 
 #[post("/login")]
@@ -30,7 +30,9 @@ async fn login(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Environm
   let _usr = get_user_from_email(session.clone(), user_login.email.clone());
 
   match _usr {
-    Err(_) => {
+    Err(e) => {
+      error!("{}", e);
+
       return HttpResponse::Ok().json(Response {
         message: format!("Invalid email {}.", user_login.email.to_string()),
         status: true
@@ -122,7 +124,7 @@ async fn register(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Envir
         "INSERT INTO user (email, id, name, password) VALUES (?, ?, ?, ?)",
         query_values!(
           user.email.to_string(),
-          uuid::Uuid::new_v4().to_string(),
+          uuid::Uuid::new_v4(),
           user.name.to_string(),
           generate_hash(&user.password).to_string()
         )
@@ -190,17 +192,18 @@ pub fn get_user_from_email(session: web::Data<Arc<CurrentSession>>, email: Strin
 //   }
 // }
 
-// #[get("/temp")]
-// async fn temp(_auth: AuthValidator) -> HttpResponse {
-//   println!("{}", _auth.user.email);
+#[get("/test")]
+async fn temp(_auth: AuthValidator) -> HttpResponse {
+  println!("{}", _auth.user.email);
 
-//   HttpResponse::Ok().json(Response {
-//     status: true,
-//     message: "opa".to_string()
-//   })
-// }
+  HttpResponse::Ok().json(Response {
+    status: true,
+    message: "User logged in.".to_string()
+  })
+}
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
   cfg.service(login);
   cfg.service(register);
+  cfg.service(temp);
 }

@@ -2,11 +2,12 @@ use serde::{Deserialize, Serialize};
 use cdrs::frame::IntoBytes;
 use cdrs::types::from_cdrs::FromCDRSByName;
 use cdrs::types::prelude::*;
+use uuid::Uuid;
 
 #[derive(Serialize, Deserialize, Clone, Debug, IntoCDRSValue, TryFromRow, PartialEq)]
 pub struct User {
   pub email: String,
-  pub id: String,
+  pub id: Uuid,
   pub name: String,
   pub password: String
 }
