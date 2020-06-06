@@ -32,13 +32,12 @@ async fn login(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Environm
   match _usr {
     Err(e) => {
       error!("{}", e);
-
       return HttpResponse::Ok().json(Response {
         message: format!("Invalid email {}.", user_login.email.to_string()),
         status: true
       });
     },
-    Ok(user) => {   
+    Ok(user) => {
       match authenticate(user_login.clone(), user.clone(), &_env) {
         Err(_) => {
           return HttpResponse::Ok().json(Response {
