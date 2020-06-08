@@ -96,7 +96,7 @@ fn insert_element(session: web::Data<Arc<CurrentSession>>, element: &Element) ->
       element.clone().to_query()
     );
   }
-    
+
   match r.expect("Inserted new element").get_body() {
     Ok(_) => {
       let resp = format!("New element {}:{} of twin {}.", element.id, element.name, element.twin);

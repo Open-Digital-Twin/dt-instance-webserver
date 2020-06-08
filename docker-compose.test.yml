@@ -1,0 +1,38 @@
+version: '3'
+services:
+  twin-webserver:
+    build: .
+    image: "dt-instance-webserver"
+    depends_on:
+      - scylla-db
+      - scylla-manager
+    ports:
+      - "8080:8080"
+    environment: 
+      - RUST_LOG=info
+      - SERVER_ADDRESS=0.0.0.0:8080
+      - DB_ADDRESS=scylla-db:9042
+      - SECRET_KEY=Xqv8jTGLxT
+      - TWIN_INSTANCE=38162cb0-e585-43d7-b55d-5c240b2bfb7c
+    networks:
+      - default
+  scylla-manager:
+    image: scylladb/scylla-manager
+    container_name: scylla-manager
+    depends_on:
+      - scylla-db
+    networks:
+      - default
+    links:
+      - "scylla-db:scylla-manager-db"
+  scylla-db:
+    image: scylladb/scylla
+    container_name: scylla-db
+    expose: [9042]
+    networks:
+      - default
+    volumes:
+      - ../shared/db:/db
+      - ../shared/dbinit.sh:/dbinit.sh
+networks:
+  default:
