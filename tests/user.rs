@@ -12,18 +12,19 @@ use crate::cdrs::query::QueryExecutor;
 #[cfg(test)]
 mod common;
 use common::models::response::{Response, LoginResponse};
+use common::models::user::{Register, UserLogin};
 
 #[test]
 fn create_user() {
   let session = common::get_db_session();
   
   // Create user
-  let user_1 = json!({
-    "email": "example_1@example.com",
-    "name": "Example user",
-    "password": "example_password"
-  });
-  session.query(format!("DELETE FROM user WHERE email='{}'", user_1["email"].as_str().unwrap()).to_string()).unwrap();
+  let user_1 = Register {
+    email: "example_1@example.com".to_string(),
+    name: "Example user".to_string(),
+    password: "example_password".to_string()
+  };
+  session.query(format!("DELETE FROM user WHERE email='{}'", user_1.email).to_string()).unwrap();
   
   let resp_1 = common::request_post("user/register")
     .json(&user_1).send().unwrap();
@@ -32,7 +33,7 @@ fn create_user() {
 
   let resp_1_body: Response = resp_1.json().unwrap();
 
-  assert_eq!(resp_1_body.message, format!("Success in creating user {}.", user_1["email"].as_str().unwrap()));
+  assert_eq!(resp_1_body.message, format!("Success in creating user {}.", user_1.email));
   assert_eq!(resp_1_body.status, true);
 
   // Create user with same email should fail
@@ -43,7 +44,7 @@ fn create_user() {
 
   let resp_2_body: Response = resp_2.json().unwrap();
 
-  assert_eq!(resp_2_body.message, format!("User {} already exists.", user_1["email"].as_str().unwrap()));
+  assert_eq!(resp_2_body.message, format!("User {} already exists.", user_1.email));
   assert_eq!(resp_2_body.status, false);
 }
 
@@ -52,22 +53,24 @@ fn create_user() {
 fn login() {
   let session = common::get_db_session();
 
-  let register = json!({
-    "email": "example_2@example.com",
-    "name": "Example user",
-    "password": "example_password"
-  });
-  session.query(format!("DELETE FROM user WHERE email='{}'", register["email"].as_str().unwrap()).to_string()).unwrap();
+  let register = Register {
+    email: "example_3@example.com".to_string(),
+    name: "Example user".to_string(),
+    password: "example_password".to_string()
+  };
+    
+  session.query(format!("DELETE FROM user WHERE email='{}'", register.email).to_string()).unwrap();
 
   let resp_1 = common::request_post("user/register")
     .json(&register).send().unwrap();
 
   assert_eq!(resp_1.status(), StatusCode::OK);
 
-  let login = json!({
-    "email": register["email"].as_str().unwrap(),
-    "password": register["password"].as_str().unwrap()
-  });
+  let login = UserLogin {
+    email: register.email.to_string(),
+    password: register.password.to_string(),
+    remember_me: false
+  };
 
   let resp_2 = common::request_post("user/login")
     .json(&login).send().unwrap();
