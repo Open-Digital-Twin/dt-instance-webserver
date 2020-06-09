@@ -32,6 +32,7 @@ rand = "0.7.3"
 [dev-dependencies]
 cargo-run-script = "0.1.0"
 cargo-watch = "7.3.0"
+reqwest = { version = "0.10.6", features = ["blocking", "json"] }
 
 [package.metadata.scripts]
 watch = "cargo-watch -x run"
