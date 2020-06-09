@@ -44,7 +44,7 @@ fn strip_comment<'a>(input: &'a str, markers: &[char]) -> &'a str {
 }
 
 fn start_db_session(addr: String) -> Arc<CurrentSession> {
-  info!("Starting db session for worker");
+  info!("Starting db session at {} for worker", addr);
 
   let node = NodeTcpConfigBuilder::new(&addr, NoneAuthenticator {}).build();
   let cluster_config = ClusterTcpConfig(vec![node]);
