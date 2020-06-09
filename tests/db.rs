@@ -1,79 +1,10 @@
-use cdrs::authenticators::{NoneAuthenticator};
-use cdrs::cluster::session::{new as new_session, Session};
-use cdrs::cluster::{ClusterTcpConfig, NodeTcpConfigBuilder, TcpConnectionPool};
-use cdrs::load_balancing::RoundRobin;
+#[macro_use]
+extern crate cdrs_helpers_derive;
+
 use cdrs::query::*;
 
-use std::sync::Arc;
-use std::env;
-
-use serde::{Deserialize, Serialize};
-// use reqwest::blocking::*;
-
-pub type CurrentSession = Session<RoundRobin<TcpConnectionPool<NoneAuthenticator>>>;
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct LoginResponse {
-  pub message: String,
-  pub status: bool,
-  pub token: String
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct Response {
-  pub message: String,
-  pub status: bool
-}
-
-pub fn init_db_session() -> Arc<CurrentSession> {
-  let db_address = env::var("DB_ADDRESS").unwrap();
-
-  let node = NodeTcpConfigBuilder::new(
-    &db_address,
-    NoneAuthenticator {}
-  ).build();
-
-  let cluster_config = ClusterTcpConfig(vec![node]);
-
-  let _session: Arc<CurrentSession> = Arc::new(
-    new_session(&cluster_config, RoundRobin::new())
-      .expect("session should be created")
-  );
-
-  _session
-}
-
-pub fn get_db_session() -> Arc<CurrentSession> {
-  let _session = init_db_session();
-
-  assert!(_session.query("USE dt;").is_ok(), "Should have set keyspace.");
-
-  _session
-}
-
-pub fn get_api() -> String {
-  let api = env::var("SERVER_ADDRESS").expect("Test API address.");
-
-  api
-}
-
-pub fn request_create_client() -> reqwest::blocking::Client {
-  reqwest::blocking::Client::new()
-}
-
-pub fn request_get(addr: &str) -> reqwest::blocking::RequestBuilder {
-  let api = get_api();
-  let url = format!("http://{}/{}", api, addr);
-
-  request_create_client().get(&url)
-}
-
-pub fn request_post(addr: &str) -> reqwest::blocking::RequestBuilder {
-  let api = get_api();
-  let url = format!("http://{}/{}", api, addr);
-
-  request_create_client().post(&url)
-}
+mod common;
+use common::init_db_session;
 
 #[test]
 #[ignore]

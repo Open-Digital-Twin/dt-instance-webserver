@@ -1,7 +1,16 @@
 use std::sync::Arc;
-use crate::{CurrentSession};
 use uuid::Uuid;
 
+use cdrs::authenticators::{NoneAuthenticator};
+use cdrs::cluster::session::{Session};
+use cdrs::cluster::{TcpConnectionPool};
+use cdrs::load_balancing::RoundRobin;
+
+use serde::{Deserialize};
+
+pub type CurrentSession = Session<RoundRobin<TcpConnectionPool<NoneAuthenticator>>>;
+
+#[allow(dead_code)]
 pub struct AppState {
   pub session: Arc<CurrentSession>,
 }
