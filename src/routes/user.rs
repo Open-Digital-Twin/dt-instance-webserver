@@ -5,7 +5,7 @@ use cdrs::frame::TryFromRow;
 // use crate::middlewares::auth::AuthorizationService;
 use crate::models::user::{User, UserLogin, Claims, Register};
 use crate::models::app::{Environment};
-use crate::models::response::{LoginResponse, Response};
+use crate::models::response::{LoginResponse, Response, DataResponse};
 use crate::{CurrentSession};
 use crate::middlewares::auth::AuthValidator;
 use std::sync::Arc;
@@ -37,8 +37,8 @@ async fn login(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Environm
         status: true
       });
     },
-    Ok(user) => {
-      match authenticate(user_login.clone(), user.clone(), &_env) {
+    Ok(_user) => {
+      match authenticate(user_login.clone(), _user.clone(), &_env) {
         Err(_) => {
           return HttpResponse::Ok().json(Response {
             status: false,
@@ -114,8 +114,8 @@ async fn register(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Envir
   let _usr = get_user_from_email(session.clone(), user.email.clone());
 
   match _usr {
-    Ok(user) => HttpResponse::Ok().json(Response {
-      message: format!("User {} already exists.", user.email.to_string()),
+    Ok(_u) => HttpResponse::Ok().json(Response {
+      message: format!("User {} already exists.", _u.email.to_string()),
       status: false
     }),
     Err(_) => {
@@ -130,12 +130,15 @@ async fn register(session: web::Data<Arc<CurrentSession>>, _env: web::Data<Envir
       ).expect("Inserted new user");
 
       info!("New user {}.", user.email);
+      let new_user = get_user_from_email(session.clone(), user.email.clone()).unwrap();
 
       // TODO: Handle creation error;
+      // TODO: Remove password hash from answer;
 
-      HttpResponse::Ok().json(Response {
+      HttpResponse::Ok().json(DataResponse {
         message: format!("Success in creating user {}.", user.email.to_string()),
-        status: true
+        status: true,
+        data: new_user
       })
     }
   }

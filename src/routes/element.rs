@@ -86,12 +86,12 @@ fn insert_element(session: web::Data<Arc<CurrentSession>>, element: &Element) ->
 
   if element.parent == None {
     r = session.query_with_values(
-      "INSERT INTO element (id, twin, name) VALUES (?, ?, ?)",
+      "INSERT INTO element (id, twin, name, created_at) VALUES (?, ?, ?, toTimestamp(now()))",
       element.clone().to_query_no_parent()
     );
   } else {
     r = session.query_with_values(
-      "INSERT INTO element (id, twin, name, parent) VALUES (?, ?, ?, ?)",
+      "INSERT INTO element (id, twin, name, parent, created_at) VALUES (?, ?, ?, ?, toTimestamp(now()))",
       element.clone().to_query()
     );
   }

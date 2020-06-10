@@ -70,9 +70,9 @@ fn insert_source(session: web::Data<Arc<CurrentSession>>, source: &Source) -> Re
     source.clone().to_query()
   );
 
-  match r.expect("Inserted new source").get_body() {
+  match r.expect("Inserted new data source").get_body() {
     Ok(_) => Ok(source.clone()),
-    Err(_) => Err(format!("Error inserting element."))
+    Err(_) => Err(format!("Error inserting data source."))
   }
 }
 

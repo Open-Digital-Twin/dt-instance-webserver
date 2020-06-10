@@ -13,8 +13,8 @@ use crate::cdrs::query::QueryExecutor;
 
 #[cfg(test)]
 mod common;
-use common::models::response::{Response, LoginResponse};
-use common::models::user::{Register, UserLogin};
+use common::models::response::{Response, LoginResponse, DataResponse};
+use common::models::user::{Register, UserLogin, User};
 
 #[test]
 fn create_user() {
@@ -33,10 +33,13 @@ fn create_user() {
 
   assert_eq!(resp_1.status(), StatusCode::OK);
 
-  let resp_1_body: Response = resp_1.json().unwrap();
+  let resp_1_body: DataResponse<User> = resp_1.json().unwrap();
 
   assert_eq!(resp_1_body.message, format!("Success in creating user {}.", user_1.email));
   assert_eq!(resp_1_body.status, true);
+  assert_eq!(resp_1_body.data.email, user_1.email);
+  assert_eq!(resp_1_body.data.name, user_1.name);
+  assert_ne!(resp_1_body.data.password, user_1.password); // Just in case.
 
   // Create user with same email should fail
   let resp_2 = common::request_post("user/register")
