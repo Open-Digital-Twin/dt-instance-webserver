@@ -120,9 +120,6 @@ fn insert_element(session: web::Data<Arc<CurrentSession>>, element: &Element) ->
 // }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
-  println!("{}", uuid::Uuid::new_v4().to_string());
-  println!("{}", uuid::Uuid::new_v4().to_string());
-
   cfg.service(put_element);
   // cfg.service(login);
   // cfg.service(register);

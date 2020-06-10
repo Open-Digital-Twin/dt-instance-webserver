@@ -74,6 +74,25 @@ pub struct Source {
   // type
 }
 
+impl Source {
+  pub fn to_query(self) -> QueryValues {
+    query_values!(
+      "id" => self.id,
+      "name" => self.name,
+      "element" => self.element,
+      "created_at" => self.created_at.timestamp()
+    )
+  }
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug)]
+pub struct SourceRegister {
+  pub name: String,
+  pub element: Uuid
+  // type
+}
+
+
 #[derive(Serialize, Deserialize, Clone, Debug)]
 pub struct SourceData {
   pub source: Uuid,
