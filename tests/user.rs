@@ -1,12 +1,14 @@
 #[macro_use]
 #[allow(unused_imports)]
 extern crate cdrs;
+
 #[macro_use]
+#[allow(unused_imports)]
 extern crate cdrs_helpers_derive;
 
 use reqwest::StatusCode;
-use serde_json::json;
 
+#[allow(unused_imports)]
 use crate::cdrs::query::QueryExecutor;
 
 #[cfg(test)]
