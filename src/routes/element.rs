@@ -5,7 +5,7 @@ use cdrs::query::*;
 // use crate::middlewares::auth::AuthorizationService;
 // use crate::models::user::*;
 use crate::models::app::{Environment};
-use crate::models::response::{Response};
+use crate::models::response::{Response, DataResponse};
 use crate::models::twin::*;
 
 use crate::{CurrentSession};
@@ -45,13 +45,12 @@ async fn put_element(
     parent: register.parent
   };
 
-  println!("{}", format!("{}: {:?}", _element.id, _element.parent));
-
   match insert_element(session, &_element) {
     Ok(response) => {
-      HttpResponse::Ok().json(Response {
+      HttpResponse::Ok().json(DataResponse {
         message: format!("{}", response),
-        status: true
+        status: true,
+        data: _element
       })
     },
     Err(_) => {
@@ -119,13 +118,6 @@ fn insert_element(session: web::Data<Arc<CurrentSession>>, element: &Element) ->
 //     Err(_e) => Err(format!("Error deleting element.")),
 //   }  
 // }
-
-// create_source
-// update_source
-// delete_source
-// clear_source_data (Delete all from timestamp interval)
-
-// insert_data
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
   println!("{}", uuid::Uuid::new_v4().to_string());

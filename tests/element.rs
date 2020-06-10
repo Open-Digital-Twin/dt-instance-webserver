@@ -11,8 +11,8 @@ use crate::cdrs::query::QueryExecutor;
 
 #[cfg(test)]
 mod common;
-use common::models::response::{Response, LoginResponse};
-use common::models::twin::{ElementRegister};
+use common::models::response::{Response, LoginResponse, DataResponse};
+use common::models::twin::{Element, ElementRegister};
 use common::models::user::{Register, UserLogin};
 
 #[test]
@@ -61,23 +61,30 @@ fn create_element() {
 
   assert_eq!(resp_2.status(), StatusCode::OK);
 
-  let resp_2_body: Response = resp_2.json().unwrap();
+  let resp_2_body: DataResponse<Element> = resp_2.json().unwrap();
   assert_eq!(resp_2_body.status, true);
+  assert_eq!(resp_2_body.data.name, element_register_1.name);
+  assert_eq!(resp_2_body.data.parent, element_register_1.parent);
 
-  // Create element with the same name is allowed
+  // Create element with the same name is allowed,
+  // but generates a new element, with a different id.
   let resp_3 = common::request_put("element").bearer_auth(&token)
     .json(&element_register_1).send().unwrap();
 
   assert_eq!(resp_3.status(), StatusCode::OK);
 
-  let resp_3_body: Response = resp_3.json().unwrap();
+  let resp_3_body: DataResponse<Element> = resp_3.json().unwrap();
   assert_eq!(resp_3_body.status, true);
+  assert_eq!(resp_3_body.data.name, element_register_1.name);
+  assert_eq!(resp_3_body.data.parent, element_register_1.parent);
 
-  // Create element with parent element
+  // Tests if two equal created elements have different identificators
+  assert_ne!(resp_3_body.data.id, resp_2_body.data.id);
+
+  // Create element with another element as parent
   let element_register_2 = ElementRegister {
     name: "Element 2".to_string(),
-    parent: None
-    // parent: element_1.id
+    parent: Some(resp_2_body.data.id)
   };
 
   let resp_4 = common::request_put("element").bearer_auth(&token)
@@ -85,6 +92,9 @@ fn create_element() {
 
   assert_eq!(resp_4.status(), StatusCode::OK);
 
-  let resp_4_body: Response = resp_4.json().unwrap();
+  let resp_4_body: DataResponse<Element> = resp_4.json().unwrap();
   assert_eq!(resp_4_body.status, true);
+  assert_eq!(resp_4_body.data.name, element_register_2.name);
+  assert_eq!(resp_4_body.data.parent, element_register_2.parent);
+  assert_eq!(resp_4_body.data.parent, Some(resp_2_body.data.id));
 }
