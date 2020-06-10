@@ -84,6 +84,4 @@ fn create_source() {
   assert_eq!(resp_3_body.data.name, source_register_1.name);
   assert_eq!(resp_3_body.data.element, source_register_1.element);
   assert_eq!(resp_3_body.data.element, resp_2_body.data.id);
-
-  resp_3_body.data.to_query();
 }

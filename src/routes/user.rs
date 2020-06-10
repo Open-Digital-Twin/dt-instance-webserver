@@ -2,7 +2,6 @@ use cdrs::query_values;
 use cdrs::query::*;
 use cdrs::frame::TryFromRow;
 
-// use crate::middlewares::auth::AuthorizationService;
 use crate::models::user::{User, UserLogin, Claims, Register};
 use crate::models::app::{Environment};
 use crate::models::response::{LoginResponse, Response, DataResponse};
@@ -11,17 +10,12 @@ use crate::middlewares::auth::AuthValidator;
 use std::sync::Arc;
 
 use chrono::{DateTime, Duration, Utc};
-// use crypto::digest::Digest;
-// use crypto::sha2::Sha256;
 use argon2::{self, Config};
 use rand::{ thread_rng, Rng };
 use rand::distributions::Alphanumeric;
 
 use log::{info, error};
 
-// use crate::routes::user::{IUserRepository, UserRepository};
-// use actix_web::http::StatusCode;
-// use actix_web::{post, get, web, HttpRequest, HttpResponse};
 use actix_web::{get, post, web, HttpResponse};
 use jsonwebtoken::{encode, EncodingKey, Header};
 

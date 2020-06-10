@@ -1,9 +1,5 @@
-// use cdrs::query_values;
 use cdrs::query::*;
-// use cdrs::frame::TryFromRow;
 
-// use crate::middlewares::auth::AuthorizationService;
-// use crate::models::user::*;
 use crate::models::app::{Environment};
 use crate::models::response::{Response, DataResponse};
 use crate::models::twin::*;
@@ -13,23 +9,9 @@ use crate::middlewares::auth::AuthValidator;
 use std::sync::Arc;
 
 use log::{info};
-// use chrono::{DateTime, Duration, Utc};
-// use crypto::digest::Digest;
-// use crypto::sha2::Sha256;
-// use argon2::{self, Config};
-// use rand::{ thread_rng, Rng };
-// use rand::distributions::Alphanumeric;
-
-// use crate::routes::user::{IUserRepository, UserRepository};
-// use actix_web::http::StatusCode;
-// use actix_web::{post, get, web, HttpRequest, HttpResponse};
 use actix_web::{put, web, HttpResponse};
-// use jsonwebtoken::{encode, EncodingKey, Header};
 
-/// Create an element in the twin instance.
-/// Element is a general definition for a collection of "things" that define a Twin.
-/// Elements can include other elements, like devices.
-/// Elements have the ability to define multiple sources of data (device sensors, entry points of data).
+/// Create a data source in an element of the twin instance.
 #[put("")]
 async fn put_source(
   _auth: AuthValidator,

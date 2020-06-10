@@ -82,3 +82,12 @@ pub fn request_put(addr: &str) -> reqwest::blocking::RequestBuilder {
 
   request_create_client().put(&url)
 }
+
+#[cfg(test)]
+#[allow(dead_code)]
+pub fn request_delete(addr: &str) -> reqwest::blocking::RequestBuilder {
+  let api = get_api();
+  let url = format!("http://{}/{}", api, addr);
+
+  request_create_client().delete(&url)
+}
