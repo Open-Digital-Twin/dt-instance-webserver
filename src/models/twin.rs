@@ -79,8 +79,7 @@ impl Source {
     query_values!(
       "id" => self.id,
       "name" => self.name,
-      "element" => self.element,
-      "created_at" => self.created_at.timestamp()
+      "element" => self.element
     )
   }
 }

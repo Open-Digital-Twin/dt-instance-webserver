@@ -1,3 +1,6 @@
 /target
 tests/**/**/models
 tests/**/**/models/**/**
+target
+cc*
+rustc*

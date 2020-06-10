@@ -66,7 +66,7 @@ async fn put_source(
 
 fn insert_source(session: web::Data<Arc<CurrentSession>>, source: &Source) -> Result<Source, String> {
   let r = session.query_with_values(
-    "INSERT INTO source (id, name, element, created_at) VALUES (?, ?, ?, ?)",
+    "INSERT INTO source (id, name, element, created_at) VALUES (?, ?, ?, toTimestamp(now()))",
     source.clone().to_query()
   );
 

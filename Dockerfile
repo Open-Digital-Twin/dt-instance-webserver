@@ -19,7 +19,7 @@ RUN cargo build --release
 # CMD ["dt-instance-webserver"]
 
 FROM rust:latest
-WORKDIR /tmp
+WORKDIR /tmp/dt-instance-webserver
 COPY ./src/models ./tests/common/models
 COPY --from=builder /tmp/dt-instance-webserver/target/release/dt-instance-webserver /usr/local/bin/dt-instance-webserver
 CMD ["dt-instance-webserver"]
