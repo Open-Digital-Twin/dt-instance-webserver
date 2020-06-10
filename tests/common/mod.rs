@@ -73,3 +73,12 @@ pub fn request_post(addr: &str) -> reqwest::blocking::RequestBuilder {
 
   request_create_client().post(&url)
 }
+
+#[cfg(test)]
+#[allow(dead_code)]
+pub fn request_put(addr: &str) -> reqwest::blocking::RequestBuilder {
+  let api = get_api();
+  let url = format!("http://{}/{}", api, addr);
+
+  request_create_client().put(&url)
+}
