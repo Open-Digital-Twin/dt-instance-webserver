@@ -15,11 +15,11 @@ RUN cargo build --release
 
 # Push built release to slim container
 # FROM debian:buster-slim
+# COPY --from=builder /tmp/dt-instance-webserver/target/release/dt-instance-webserver /usr/local/bin/dt-instance-webserver
+# CMD ["dt-instance-webserver"]
+
 FROM rust:latest
 WORKDIR /tmp
-COPY Cargo.toml Cargo.lock ./
-COPY ./src ./src
 COPY ./src/models ./tests/common/models
-COPY ./tests ./tests
 COPY --from=builder /tmp/dt-instance-webserver/target/release/dt-instance-webserver /usr/local/bin/dt-instance-webserver
 CMD ["dt-instance-webserver"]
