@@ -18,7 +18,6 @@ services:
       - default
     volumes:
       - .:/tmp/dt-instance-webserver
-      - ./src/models:/tmp/dt-instance-webserver/tests/common/models
   scylla-manager:
     image: scylladb/scylla-manager
     container_name: scylla-manager

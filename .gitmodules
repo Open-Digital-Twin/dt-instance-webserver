@@ -4,3 +4,6 @@
 [submodule "src/common"]
 	path = src/common
 	url = git@github.com:Open-Digital-Twin/dt-common.git
+[submodule "tests/common"]
+	path = tests/common
+	url = git@github.com:Open-Digital-Twin/dt-common.git
