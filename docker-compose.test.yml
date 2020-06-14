@@ -2,12 +2,11 @@ version: '3'
 services:
   twin-webserver:
     build: .
+    dockerfile: Dockerfile.test
     image: "dt-instance-webserver"
     depends_on:
       - scylla-db
       - scylla-manager
-    ports:
-      - "8080:8080"
     environment: 
       - RUST_LOG=info
       - SERVER_ADDRESS=0.0.0.0:8080

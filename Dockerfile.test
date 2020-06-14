@@ -13,8 +13,7 @@ RUN echo " " >> build.rs
 COPY ./src ./src
 RUN cargo build --release
 
-# Push built release to slim container
-FROM debian:buster-slim
+FROM rust:latest
+WORKDIR /tmp/dt-instance-webserver
 COPY --from=builder /tmp/dt-instance-webserver/target/release/dt-instance-webserver /usr/local/bin/dt-instance-webserver
-CMD ["dt-instance-webserver"]
-
+CMD ["cargo test"]
