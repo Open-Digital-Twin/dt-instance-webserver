@@ -1,8 +1,9 @@
 version: '3'
 services:
   twin-webserver:
-    build: .
-    dockerfile: Dockerfile.test
+    build: 
+      context: .
+      dockerfile: Dockerfile.test
     image: "dt-instance-webserver"
     depends_on:
       - scylla-db

@@ -16,7 +16,7 @@ mod common;
 use common::models::response::{Response, LoginResponse, DataResponse};
 use common::models::user::{Register, UserLogin, User};
 use common::db::get_db_session;
-use common::requests::{get, post, put, delete};
+use common::requests::{get, post};
 
 #[test]
 fn create_user() {

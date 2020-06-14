@@ -1,0 +1,49 @@
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: rust:1
+    steps:
+      - checkout
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            curl -L https://github.com/docker/compose/releases/download/1.26.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+            chmod +x /usr/local/bin/docker-compose
+      - setup_remote_docker
+      - run:
+          name: Pull submodules
+          command: git submodule init; git submodule update --remote
+      - run:
+          name: Version information
+          command: rustc --version; cargo --version; rustup --version
+      - run:
+          name: Calculate dependencies
+          command: cargo generate-lockfile
+      - restore_cache:
+          keys:
+            - v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build all targets
+          command: cargo build --all --all-targets
+      - save_cache:
+          paths:
+            - /usr/local/cargo/registry
+            - target/debug/.fingerprint
+            - target/debug/build
+            - target/debug/deps
+          key: v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+      - run:
+          name: Build compose containers
+          command: docker-compose -f docker-compose.test.yml up -d --build
+      - run:
+          name: Wait for DB
+          command: sleep 30; docker restart dt-instance-webserver_twin-webserver_1
+      - run:
+          name: Go inside created test container
+          command: docker exec -it dt-instance-webserver_twin-webserver_1 /bin/bash
+      - run:
+          name: Run all tests
+          command: cargo test --all
