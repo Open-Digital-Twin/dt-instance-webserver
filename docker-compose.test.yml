@@ -33,5 +33,7 @@ services:
     expose: [9042]
     networks:
       - default
+    volumes:
+      - ./shared/db:/db
 networks:
   default:

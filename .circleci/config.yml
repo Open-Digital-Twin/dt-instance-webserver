@@ -39,11 +39,11 @@ jobs:
           name: Build compose containers
           command: docker-compose -f docker-compose.test.yml up -d --build
       - run:
-          name: Wait for DB
-          command: sleep 30; docker restart dt-instance-webserver_twin-webserver_1
+          name: Wait and init DB.
+          command: sleep 30; docker exec -it scylla-db cqlsh; SOURCE 'db/db.cql'; exit
       - run:
           name: Go inside created test container
-          command: docker exec -it dt-instance-webserver_twin-webserver_1 /bin/bash
+          command: docker restart dt-instance-webserver_twin-webserver_1; docker exec -it dt-instance-webserver_twin-webserver_1 /bin/bash
       - run:
           name: Run all tests
           command: cargo test --all
