@@ -1,8 +1,8 @@
 use cdrs::query::*;
 
-use crate::models::app::{Environment};
-use crate::models::response::{Response, DataResponse};
-use crate::models::twin::*;
+use crate::common::models::app::{Environment};
+use crate::common::models::response::{Response, DataResponse};
+use crate::common::models::twin::*;
 
 use crate::{CurrentSession};
 use crate::middlewares::auth::AuthValidator;

@@ -2,10 +2,9 @@ use cdrs::query_values;
 use cdrs::query::*;
 use cdrs::frame::TryFromRow;
 
-use crate::models::user::{User, UserLogin, Claims, Register};
-use crate::models::app::{Environment};
-use crate::models::response::{LoginResponse, Response, DataResponse};
-use crate::{CurrentSession};
+use crate::common::models::user::{User, UserLogin, Claims, Register};
+use crate::common::models::app::{CurrentSession, Environment};
+use crate::common::models::response::{LoginResponse, Response, DataResponse};
 use crate::middlewares::auth::AuthValidator;
 use std::sync::Arc;
 

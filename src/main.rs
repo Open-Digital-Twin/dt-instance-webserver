@@ -11,8 +11,8 @@ use log::{info};
 extern crate serde_derive;
 
 use cdrs::authenticators::{NoneAuthenticator};
-use cdrs::cluster::session::{new as new_session, Session};
-use cdrs::cluster::{ClusterTcpConfig, NodeTcpConfigBuilder, TcpConnectionPool};
+use cdrs::cluster::session::{new as new_session};
+use cdrs::cluster::{ClusterTcpConfig, NodeTcpConfigBuilder};
 use cdrs::load_balancing::RoundRobin;
 use cdrs::query::*;
 
@@ -28,12 +28,12 @@ use actix_web::{middleware, web, App, HttpServer};
 use dotenv::dotenv;
 
 mod middlewares;
-mod models;
-use crate::models::app::*;
+
+mod common;
+use common::models::app::*;
+use common::db::get_db_session;
 
 mod routes;
-
-pub type CurrentSession = Session<RoundRobin<TcpConnectionPool<NoneAuthenticator>>>;
 
 fn strip_comment<'a>(input: &'a str, markers: &[char]) -> &'a str {
   input
@@ -70,9 +70,7 @@ async fn main() -> std::io::Result<()> {
   HttpServer::new(move || {
     App::new()
       .data(envy::from_env::<Environment>().unwrap())
-      .data(start_db_session(
-        env::var("DB_ADDRESS").unwrap()
-      ).clone())
+      .data(get_db_session().clone())
       .wrap(middleware::Compress::new(ContentEncoding::Br))
       .wrap(middleware::Logger::default())
       .service(web::scope("/user").configure(routes::user::init_routes))

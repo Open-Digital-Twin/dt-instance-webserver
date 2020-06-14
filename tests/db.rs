@@ -4,7 +4,7 @@ extern crate cdrs_helpers_derive;
 use cdrs::query::*;
 
 mod common;
-use common::init_db_session;
+use common::db::init_db_session;
 
 #[test]
 #[ignore]

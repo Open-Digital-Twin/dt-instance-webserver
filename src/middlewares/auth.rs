@@ -1,4 +1,4 @@
-use crate::models::user::{User, Claims};
+use crate::common::models::user::{User, Claims};
 use actix_web::error::ErrorUnauthorized;
 use actix_web::{dev, Error, FromRequest, HttpRequest};
 use futures::future::{err, ok, Ready};

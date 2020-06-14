@@ -16,11 +16,14 @@ mod common;
 use common::models::response::{Response, LoginResponse, DataResponse};
 use common::models::twin::{Element, ElementRegister};
 use common::models::user::{Register, UserLogin};
+use common::db::get_db_session;
+use common::requests::{post, put};
+
 
 #[test]
 /// Register new element for user.
 fn create_element() {
-  let session = common::get_db_session();
+  let session = get_db_session();
   
   // Create user
   let user_1 = Register {
@@ -30,7 +33,7 @@ fn create_element() {
   };
   session.query(format!("DELETE FROM user WHERE email='{}'", user_1.email).to_string()).unwrap();
   
-  let resp_1 = common::request_post("user/register")
+  let resp_1 = post("user/register")
     .json(&user_1).send().unwrap();
 
   assert_eq!(resp_1.status(), StatusCode::OK);
@@ -43,7 +46,7 @@ fn create_element() {
     remember_me: false
   };
 
-  let resp_login = common::request_post("user/login")
+  let resp_login = post("user/login")
     .json(&login).send().unwrap();
 
   assert_eq!(resp_login.status(), StatusCode::OK);
@@ -58,7 +61,7 @@ fn create_element() {
     parent: None
   };
 
-  let resp_2 = common::request_put("element").bearer_auth(&token)
+  let resp_2 = put("element").bearer_auth(&token)
     .json(&element_register_1).send().unwrap();
 
   assert_eq!(resp_2.status(), StatusCode::OK);
@@ -70,7 +73,7 @@ fn create_element() {
 
   // Create element with the same name is allowed,
   // but generates a new element, with a different id.
-  let resp_3 = common::request_put("element").bearer_auth(&token)
+  let resp_3 = put("element").bearer_auth(&token)
     .json(&element_register_1).send().unwrap();
 
   assert_eq!(resp_3.status(), StatusCode::OK);
@@ -89,7 +92,7 @@ fn create_element() {
     parent: Some(resp_2_body.data.id)
   };
 
-  let resp_4 = common::request_put("element").bearer_auth(&token)
+  let resp_4 = put("element").bearer_auth(&token)
     .json(&element_register_2).send().unwrap();
 
   assert_eq!(resp_4.status(), StatusCode::OK);
