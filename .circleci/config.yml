@@ -38,4 +38,4 @@ jobs:
           command: docker cp /home/circleci/project/shared/db/db.cql scylla-db:db.cql; sleep 60; docker exec -it scylla-db cqlsh --file 'db.cql'
       - run:
           name: Run tests inside restart container
-          command: docker restart dt-instance-webserver_twin-webserver_1; docker exec -it dt-instance-webserver_twin-webserver_1 cargo test --all
+          command: docker ps; docker container ls; docker restart project_twin-webserver_1; docker exec -it project_twin-webserver_1 cargo test --all
