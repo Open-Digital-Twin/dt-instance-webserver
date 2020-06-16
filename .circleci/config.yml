@@ -18,7 +18,7 @@ jobs:
           command: cargo generate-lockfile
       - restore_cache:
           keys:
-            - v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+            - v4-rust-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - run:
           name: Build all targets
           command: cargo build --all --all-targets
@@ -28,7 +28,7 @@ jobs:
             - target/debug/.fingerprint
             - target/debug/build
             - target/debug/deps
-          key: v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
+          key: v4-rust-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - setup_remote_docker
       # - run:
       #     name: Install Docker Compose
