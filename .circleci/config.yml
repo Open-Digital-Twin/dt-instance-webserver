@@ -35,7 +35,7 @@ jobs:
           command: docker-compose -f docker-compose.test.yml up -d --build
       - run:
           name: Wait and init DB.
-          command: sleep 60; docker exec -it scylla-db cqlsh --file 'shared/db/db.cql'
+          command: sleep 60; docker exec -it scylla-db cqlsh --file '/home/circleci/project/shared/db/db.cql'
       - run:
           name: Run tests inside restart container
           command: docker restart dt-instance-webserver_twin-webserver_1; docker exec -it dt-instance-webserver_twin-webserver_1 cargo test --all
