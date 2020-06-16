@@ -13,7 +13,5 @@ RUN echo " " >> build.rs
 COPY ./src ./src
 RUN cargo build --release
 
-FROM rust:latest
-WORKDIR /tmp/dt-instance-webserver
 COPY --from=builder /tmp/dt-instance-webserver/target/release/dt-instance-webserver /usr/local/bin/dt-instance-webserver
 CMD ["dt-instance-webserver"]
