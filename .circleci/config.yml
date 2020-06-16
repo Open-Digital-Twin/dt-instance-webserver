@@ -22,6 +22,13 @@ jobs:
       - run:
           name: Build all targets
           command: cargo build --all --all-targets
+      - save_cache:
+          paths:
+            - /usr/local/cargo/registry
+            - target/debug/.fingerprint
+            - target/debug/build
+            - target/debug/deps
+          key: v4-cargo-cache-{{ arch }}-{{ checksum "Cargo.lock" }}
       - setup_remote_docker
       # - run:
       #     name: Install Docker Compose
