@@ -1,7 +1,7 @@
 use cdrs::query::*;
 
-use crate::common::models::app::{Environment};
-use crate::common::models::response::{Response, DataResponse};
+use crate::common::models::app::{Environment, SOURCE_DATA_TOPIC, SOURCE_DATA_ACK_TOPIC};
+use crate::common::models::response::{Response, DataResponse, DataResponseWithTopics};
 use crate::common::models::twin::*;
 
 use crate::{CurrentSession};
@@ -10,6 +10,8 @@ use std::sync::Arc;
 
 use log::{info};
 use actix_web::{put, web, HttpResponse};
+
+use std::collections::HashMap;
 
 /// Create a data source in an element of the twin instance.
 #[put("")]
@@ -23,7 +25,7 @@ async fn put_source(
     id: uuid::Uuid::new_v4(),
     name: register.name.to_string(),
     element: register.element,
-    created_at: chrono::offset::Utc::now()
+    // created_at: chrono::offset::Utc::now()
   };
 
   match insert_source(session, &_source) {
@@ -31,7 +33,12 @@ async fn put_source(
       let answer = format!("Created source {}:{} of element {}.", source.id, source.name, source.element);
       info!("{}", answer);
 
-      HttpResponse::Ok().json(DataResponse {
+      let mut topics: HashMap<String, String> = HashMap::new();
+      topics.insert(SOURCE_DATA_TOPIC.to_string(), source.clone().data_topic());
+      topics.insert(SOURCE_DATA_ACK_TOPIC.to_string(), source.clone().data_ack_topic());
+
+      HttpResponse::Ok().json(DataResponseWithTopics {
+        topics,
         message: answer,
         status: true,
         data: source

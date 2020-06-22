@@ -13,9 +13,10 @@ use crate::cdrs::query::QueryExecutor;
 
 #[cfg(test)]
 mod common;
-use common::models::response::{Response, LoginResponse, DataResponse};
+use common::models::response::{Response, LoginResponse, DataResponse, DataResponseWithTopics};
 use common::models::twin::{Element, ElementRegister, Source, SourceRegister};
 use common::models::user::{Register, UserLogin};
+use common::models::app::{SOURCE_DATA_ACK_TOPIC,SOURCE_DATA_TOPIC};
 use common::db::get_db_session;
 use common::requests::{post, put};
 
@@ -82,9 +83,26 @@ fn create_source() {
 
   assert_eq!(resp_3.status(), StatusCode::OK);
 
-  let resp_3_body: DataResponse<Source> = resp_3.json().unwrap();
+  let resp_3_body: DataResponseWithTopics<Source> = resp_3.json().unwrap();
   assert_eq!(resp_3_body.status, true);
   assert_eq!(resp_3_body.data.name, source_register_1.name);
   assert_eq!(resp_3_body.data.element, source_register_1.element);
   assert_eq!(resp_3_body.data.element, resp_2_body.data.id);
+
+  assert!(resp_3_body.topics.contains_key(SOURCE_DATA_TOPIC));
+
+  let source_topic: Vec<&str> = resp_3_body.topics.get(SOURCE_DATA_TOPIC).unwrap().split('/').collect();
+  assert_eq!(source_topic.len(), 3);
+
+  // TODO: use source_topic[0] to get Twin
+  // TODO: use source_topic[1] to get Element
+  // TODO: use source_topic[2] to get Source
+
+  assert!(resp_3_body.topics.contains_key(SOURCE_DATA_ACK_TOPIC));
+  let source_ack_topic: Vec<&str> = resp_3_body.topics.get(SOURCE_DATA_ACK_TOPIC).unwrap().split('/').collect();
+  assert_eq!(source_ack_topic.len(), 4);
+
+  // TODO: use source_ack_topic[0] to get Twin
+  // TODO: use source_ack_topic[1] to get Element
+  // TODO: use source_ack_topic[2] to get Source
 }

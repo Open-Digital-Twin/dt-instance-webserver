@@ -20,6 +20,7 @@ jsonwebtoken = "7.1.0"
 chrono = { version = "0.4.11", features = ["serde"] }
 rust-crypto = "0.2.36"
 uuid = { version = "0.8", features = ["serde", "v4"] }
+blob-uuid = "0.4.0"
 futures = "0.3.4"
 dotenv = "0.15.0"
 envy = "0.4.1"
@@ -29,10 +30,3 @@ env_logger = "0.7.1"
 rust-argon2 = "0.8.2"
 rand = "0.7.3"
 reqwest = { version = "0.10.6", features = ["blocking", "json"] }
-
-[dev-dependencies]
-cargo-run-script = "0.1.0"
-cargo-watch = "7.3.0"
-
-[package.metadata.scripts]
-watch = "cargo-watch -x run"
