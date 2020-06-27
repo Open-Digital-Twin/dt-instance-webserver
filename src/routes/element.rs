@@ -6,16 +6,12 @@ use crate::common::models::response::{Response, DataResponse};
 use crate::common::models::twin::*;
 use crate::common::db::get_by_id;
 
-
 use crate::middlewares::auth::AuthValidator;
 
 use std::sync::Arc;
 
 use log::{info};
 use actix_web::{get, put, web, HttpResponse};
-
-use uuid::Uuid;
-use blob_uuid::to_uuid;
 
 /// Create an element in the twin instance.
 /// Element is a general definition for a collection of "things" that define a Twin.
@@ -38,7 +34,7 @@ async fn put_element(
 
   match insert_element(session, &_element) {
     Ok(response) => {
-      HttpResponse::Ok().json(DataResponse {
+      HttpResponse::Created().json(DataResponse {
         message: format!("{}", response),
         status: true,
         data: _element
@@ -117,7 +113,7 @@ async fn get_element(
         404 => response = HttpResponse::NotFound(),
         _ => response = HttpResponse::BadRequest()
       }
-      
+
       response.json(Response {
         message: error,
         status: false
@@ -141,6 +137,5 @@ async fn get_element(
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
   cfg.service(put_element);
-  // cfg.service(login);
-  // cfg.service(register);
+  cfg.service(get_element);
 }

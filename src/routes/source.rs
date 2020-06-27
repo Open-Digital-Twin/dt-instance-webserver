@@ -18,7 +18,6 @@ use actix_web::{get, put, web, HttpResponse};
 use std::collections::HashMap;
 
 use uuid::Uuid;
-use blob_uuid::to_uuid;
 
 /// Create a data source in an element of the twin instance.
 #[put("")]
