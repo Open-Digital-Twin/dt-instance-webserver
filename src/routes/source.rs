@@ -83,9 +83,7 @@ fn get_source_by_id(session: web::Data<Arc<CurrentSession>>, source: String) -> 
     }
   }
 
-  let query = format!("SELECT * FROM source WHERE id = {}", id);
-  info!("{}", query);
-  let r = session.query(query);
+  let r = session.query(format!("SELECT * FROM source WHERE id = {}", id));
 
   let rows = r.expect("Get source by id")
     .get_body().unwrap()

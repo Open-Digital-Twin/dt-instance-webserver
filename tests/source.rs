@@ -18,8 +18,7 @@ use common::models::twin::{Element, ElementRegister, Source, SourceRegister};
 use common::models::user::{Register, UserLogin};
 use common::models::app::{SOURCE_DATA_ACK_TOPIC,SOURCE_DATA_TOPIC};
 use common::db::get_db_session;
-use common::requests::{post, put};
-
+use common::requests::{get, post, put};
 
 #[test]
 /// Register new source of element.
@@ -94,9 +93,30 @@ fn create_source() {
   let source_topic: Vec<&str> = resp_3_body.topics.get(SOURCE_DATA_TOPIC).unwrap().split('/').collect();
   assert_eq!(source_topic.len(), 3);
 
+  // let twin_id = source_topic[0];
+  // let element_id = source_topic[1];
+  let source_id = source_topic[2];
+
   // TODO: use source_topic[0] to get Twin
   // TODO: use source_topic[1] to get Element
-  // TODO: use source_topic[2] to get Source
+
+  // Get source from created id
+  // Test source obtained from GET to the one received on source creation.
+  let resp_source = get(format!("source/{}", source_id).as_str()).bearer_auth(&token).send().unwrap();
+  assert_eq!(resp_source.status(), StatusCode::OK);
+
+  let resp_source_body: DataResponse<Source> = resp_source.json().unwrap();
+  assert_eq!(resp_source_body.status, true);
+  assert_eq!(resp_source_body.data.id, resp_3_body.data.id);
+  assert_eq!(resp_source_body.data.name, resp_3_body.data.name);
+  assert_eq!(resp_source_body.data.element, resp_3_body.data.element);
+  assert_eq!(resp_source_body.data, resp_3_body.data);
+
+  // Get invalid source
+  let resp_source_invalid = get("source/123").bearer_auth(&token).send().unwrap();
+  assert_eq!(resp_source_invalid.status(), StatusCode::NOT_FOUND);
+  let resp_source_invalid_body: Response = resp_source_invalid.json().unwrap();
+  assert_eq!(resp_source_invalid_body.status, false);
 
   assert!(resp_3_body.topics.contains_key(SOURCE_DATA_ACK_TOPIC));
   let source_ack_topic: Vec<&str> = resp_3_body.topics.get(SOURCE_DATA_ACK_TOPIC).unwrap().split('/').collect();
@@ -104,5 +124,16 @@ fn create_source() {
 
   // TODO: use source_ack_topic[0] to get Twin
   // TODO: use source_ack_topic[1] to get Element
-  // TODO: use source_ack_topic[2] to get Source
+
+  let resp_source_2 = get(format!("source/{}", source_ack_topic[2]).as_str()).bearer_auth(&token).send().unwrap();
+  assert_eq!(resp_source_2.status(), StatusCode::OK);
+
+  let resp_source_2_body: DataResponse<Source> = resp_source_2.json().unwrap();
+  assert_eq!(resp_source_2_body.status, true);
+  assert_eq!(resp_source_2_body.data.id, resp_3_body.data.id);
+  assert_eq!(resp_source_2_body.data.name, resp_3_body.data.name);
+  assert_eq!(resp_source_2_body.data.element, resp_3_body.data.element);
+  assert_eq!(resp_source_2_body.data, resp_3_body.data);
 }
+
+
