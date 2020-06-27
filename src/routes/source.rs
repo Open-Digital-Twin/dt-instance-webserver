@@ -6,6 +6,8 @@ use crate::common::models::app::{Environment, SOURCE_DATA_TOPIC, SOURCE_DATA_ACK
 use crate::common::models::response::{Response, DataResponse, DataResponseWithTopics};
 use crate::common::models::twin::*;
 
+use crate::common::db::get_by_id;
+
 use crate::{CurrentSession};
 use crate::middlewares::auth::AuthValidator;
 use std::sync::Arc;
@@ -70,38 +72,13 @@ fn insert_source(session: web::Data<Arc<CurrentSession>>, source: &Source) -> Re
   }
 }
 
-fn get_source_by_id(session: web::Data<Arc<CurrentSession>>, source: String) -> Result<Source, (String, usize)> {
-  let id: Uuid;
-  
-  match Uuid::parse_str(&source) {
-    Ok(_id) => { id = _id },
-    Err(_error) => {
-      match to_uuid(&source) {
-        Ok(_id) => { id = _id },
-        Err(_) => { return Err((format!("Invalid input source."), 400)); }
-      }
-    }
-  }
-
-  let r = session.query(format!("SELECT * FROM source WHERE id = {}", id));
-
-  let rows = r.expect("Get source by id")
-    .get_body().unwrap()
-    .into_rows().unwrap();
-
-  if rows.is_empty() {
-    return Err(("No source found.".to_string(), 404));
-  }
-  return Ok(Source::try_from_row(rows[0].clone()).unwrap());
-}
-
 #[get("{source_id}")]
 async fn get_source(
   _auth: AuthValidator,
   session: web::Data<Arc<CurrentSession>>,
   source_id: web::Path<String>
 ) -> HttpResponse {
-  match get_source_by_id(session, source_id.to_string()) {
+  match get_by_id::<Source>(session, source_id.to_string(), "source".to_string()) {
     Ok(source) => HttpResponse::Ok().json(DataResponse {
       message: format!("Found source {}", source.clone().id),
       data: source,

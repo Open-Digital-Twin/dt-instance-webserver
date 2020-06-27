@@ -1,15 +1,21 @@
 use cdrs::query::*;
+use cdrs::frame::traits::TryFromRow;
 
 use crate::common::models::app::{CurrentSession, Environment};
 use crate::common::models::response::{Response, DataResponse};
 use crate::common::models::twin::*;
+use crate::common::db::get_by_id;
+
 
 use crate::middlewares::auth::AuthValidator;
 
 use std::sync::Arc;
 
 use log::{info};
-use actix_web::{put, web, HttpResponse};
+use actix_web::{get, put, web, HttpResponse};
+
+use uuid::Uuid;
+use blob_uuid::to_uuid;
 
 /// Create an element in the twin instance.
 /// Element is a general definition for a collection of "things" that define a Twin.
@@ -88,6 +94,35 @@ fn insert_element(session: web::Data<Arc<CurrentSession>>, element: &Element) ->
       Ok(resp)
     },
     Err(_) => Err(format!("Error inserting element."))
+  }
+}
+
+#[get("{element_id}")]
+async fn get_element(
+  _auth: AuthValidator,
+  session: web::Data<Arc<CurrentSession>>,
+  element_id: web::Path<String>
+) -> HttpResponse {
+  match get_by_id::<Element>(session, element_id.to_string(), "element".to_string()) {
+    Ok(element) => HttpResponse::Ok().json(DataResponse {
+      message: format!("Found element {}", element.clone().id),
+      data: element,
+      status: true
+    }),
+    Err((error, status)) => {
+      let mut response;
+
+      match status {
+        400 => response = HttpResponse::BadRequest(),
+        404 => response = HttpResponse::NotFound(),
+        _ => response = HttpResponse::BadRequest()
+      }
+      
+      response.json(Response {
+        message: error,
+        status: false
+      })
+    }
   }
 }
 

@@ -17,7 +17,7 @@ use common::models::response::{Response, LoginResponse, DataResponse};
 use common::models::twin::{Element, ElementRegister};
 use common::models::user::{Register, UserLogin};
 use common::db::get_db_session;
-use common::requests::{post, put};
+use common::requests::{get, post, put};
 
 
 #[test]
@@ -102,4 +102,5 @@ fn create_element() {
   assert_eq!(resp_4_body.data.name, element_register_2.name);
   assert_eq!(resp_4_body.data.parent, element_register_2.parent);
   assert_eq!(resp_4_body.data.parent, Some(resp_2_body.data.id));
+
 }

@@ -94,11 +94,15 @@ fn create_source() {
   assert_eq!(source_topic.len(), 3);
 
   // let twin_id = source_topic[0];
-  // let element_id = source_topic[1];
+  let element_id = source_topic[1];
   let source_id = source_topic[2];
 
   // TODO: use source_topic[0] to get Twin
-  // TODO: use source_topic[1] to get Element
+  // let resp_element = get(format!("element/{}", element_id).as_str()).bearer_auth(&token).send().unwrap();
+  // assert_eq!(resp_element.status(), StatusCode::OK);
+
+  // let resp_element_body: DataResponse<Element> = resp_element.json().unwrap();
+  // assert_eq!(resp_element_body.status, true);
 
   // Get source from created id
   // Test source obtained from GET to the one received on source creation.
@@ -135,5 +139,3 @@ fn create_source() {
   assert_eq!(resp_source_2_body.data.element, resp_3_body.data.element);
   assert_eq!(resp_source_2_body.data, resp_3_body.data);
 }
-
-
