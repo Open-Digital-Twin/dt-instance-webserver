@@ -2,9 +2,9 @@ use cdrs::query::*;
 use cdrs::frame::traits::TryFromRow;
 
 use crate::common::models::app::{CurrentSession, Environment};
-use crate::common::models::response::{Response, DataResponse};
+use crate::common::models::response::{Response, DataResponse, VecDataResponse};
 use crate::common::models::twin::*;
-use crate::common::db::get_by_id;
+use crate::common::db::{get_by_id, get_element_sources};
 
 use crate::middlewares::auth::AuthValidator;
 
@@ -122,6 +122,35 @@ async fn get_element(
   }
 }
 
+#[get("{element_id}/sources")]
+async fn get_sources_by_element(
+  _auth: AuthValidator,
+  session: web::Data<Arc<CurrentSession>>,
+  element_id: web::Path<String>
+) -> HttpResponse {
+  match get_element_sources(session, element_id.to_string()) {
+    Ok(elements) => HttpResponse::Ok().json(VecDataResponse {
+      message: format!("Found {} sources for element {}", elements.len(), element_id),
+      data: elements,
+      status: true
+    }),
+    Err((error, status)) => {
+      let mut response;
+
+      match status {
+        400 => response = HttpResponse::BadRequest(),
+        404 => response = HttpResponse::NotFound(),
+        _ => response = HttpResponse::BadRequest()
+      }
+
+      response.json(Response {
+        message: error,
+        status: false
+      })
+    }
+  }
+}
+
 // fn delete_element_by_id(session: web::Data<Arc<CurrentSession>>, id: String, twin: String) -> Result<String, String> {
 //   let r = session.query_with_values(
 //     "DELETE FROM element WHERE id = ? AND twin = ?",
@@ -138,4 +167,5 @@ async fn get_element(
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
   cfg.service(put_element);
   cfg.service(get_element);
+  cfg.service(get_sources_by_element);
 }
