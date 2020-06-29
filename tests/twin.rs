@@ -284,6 +284,35 @@ fn get_twin_elements() {
     assert_eq!(child_element.element.id, f_source_7.element);
     assert_eq!(child_element.children.len(), 0);
 
+    // Element 5 has a child element. Child element has 3 child elements, each with 1 source.
+    let s_element_5 = obtained_elements.iter().find(|&item| item.element.id == element_5.id).unwrap();
 
+    assert_eq!(s_element_5.element, element_5);
+    assert_eq!(s_element_5.children.len(), 1);
+    assert_eq!(s_element_5.sources.len(), 0);
+
+    let s_element_5_child = s_element_5.children.iter().find(|&item| item.element.id == element_5_child.id).unwrap();
+    assert_eq!(s_element_5_child.element, element_5_child);
+    assert_eq!(s_element_5_child.children.len(), 3);
+    assert_eq!(s_element_5_child.sources.len(), 0);
+
+    let s_element_5_cc_1 = s_element_5_child.children.iter().find(|&item| item.element.id == element_5_cc_1.id).unwrap();
+    let s_element_5_cc_2 = s_element_5_child.children.iter().find(|&item| item.element.id == element_5_cc_2.id).unwrap();
+    let s_element_5_cc_3 = s_element_5_child.children.iter().find(|&item| item.element.id == element_5_cc_3.id).unwrap();
+
+    assert_eq!(s_element_5_cc_1.element, element_5_cc_1);
+    assert_eq!(s_element_5_cc_1.children.len(), 0);
+    assert_eq!(s_element_5_cc_1.sources.len(), 1);
+    assert_eq!(s_element_5_cc_1.sources[0], source_cc_1);
+
+    assert_eq!(s_element_5_cc_2.element, element_5_cc_2);
+    assert_eq!(s_element_5_cc_2.children.len(), 0);
+    assert_eq!(s_element_5_cc_2.sources.len(), 1);
+    assert_eq!(s_element_5_cc_2.sources[0], source_cc_2);
+
+    assert_eq!(s_element_5_cc_3.element, element_5_cc_3);
+    assert_eq!(s_element_5_cc_3.children.len(), 0);
+    assert_eq!(s_element_5_cc_3.sources.len(), 1);
+    assert_eq!(s_element_5_cc_3.sources[0], source_cc_3);
   }
 }
