@@ -76,6 +76,7 @@ async fn main() -> std::io::Result<()> {
       .service(web::scope("/user").configure(routes::user::init_routes))
       .service(web::scope("/element").configure(routes::element::init_routes))
       .service(web::scope("/source").configure(routes::source::init_routes))
+      .service(web::scope("/twin").configure(routes::twin::init_routes))
       // .configure(routes_config)
   })
   .bind(env::var("SERVER_ADDRESS").unwrap())?

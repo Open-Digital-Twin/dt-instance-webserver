@@ -19,7 +19,6 @@ use common::models::user::{Register, UserLogin};
 use common::db::get_db_session;
 use common::requests::{get, post, put};
 
-
 #[test]
 /// Register new element for user.
 fn create_element() {

@@ -8,7 +8,7 @@ services:
     depends_on:
       - scylla-db
       - scylla-manager
-    environment: 
+    environment:
       - RUST_LOG=info
       - SERVER_ADDRESS=0.0.0.0:8080
       - DB_ADDRESS=scylla-db:9042
@@ -20,6 +20,7 @@ services:
       - .:/tmp/dt-instance-webserver
     ports:
       - "8080:8080"
+    restart: on-failure
   scylla-manager:
     image: scylladb/scylla-manager
     container_name: scylla-manager
