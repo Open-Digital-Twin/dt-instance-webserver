@@ -1,8 +1,5 @@
-use cdrs::query::*;
-use cdrs::frame::traits::TryFromRow;
-
-use crate::common::models::app::{CurrentSession, Environment};
-use crate::common::models::response::{Response, DataResponse, VecDataResponse};
+use crate::common::models::app::{CurrentSession};
+use crate::common::models::response::{Response, VecDataResponse};
 use crate::common::models::twin::*;
 use crate::common::models::request::Serializeable;
 use crate::common::db::{get_twin_elements, get_element_sources};
@@ -11,7 +8,7 @@ use crate::middlewares::auth::AuthValidator;
 
 use std::sync::Arc;
 
-use log::{info};
+use log::{debug};
 use actix_web::{get, web, HttpResponse};
 use std::cmp::Ordering;
 
@@ -25,19 +22,50 @@ fn sort_elements(a: &Element, b: &Element) -> Ordering {
   }
 }
 
+fn find_element(elements: &mut Vec<ElementSerialized>, id: uuid::Uuid, count: usize) -> Option<&mut ElementSerialized> {
+  debug!("Finding element {} - elements: {} - find_element iteration {}", id, elements.len(), count);
+
+  if count < 10 {
+    for item in elements {
+      debug!("Searching in element {}", item.element.id);
+      if item.element.id == id {
+        debug!("Found {}.", id);
+        return Some(item);
+      } else if !item.children.is_empty() {
+        debug!("Testing children of element: has {}", item.children.len());
+        match find_element(&mut item.children, id, count + 1) {
+          Some(el) => {
+            return Some(el);
+          },
+          None => {}
+        }
+      } else {
+        debug!("No children on element");
+      }
+    }
+    debug!("Did not find {} in elements", id);
+    return None;
+  }
+  return None;
+}
+
 fn handle_parentless_elements(elements: &mut Vec<ElementSerialized>, child_elements: &mut Vec<ElementSerialized>) {
-  info!("Next handle {}", child_elements.len());
+  debug!("Remaining parentless elements {}", child_elements.len());
+
   if !child_elements.is_empty() {
     let mut next_child_elements: Vec<ElementSerialized> = Vec::new();
 
     for s_element in child_elements {
-      let found_element = (*elements).iter_mut().find(|item| item.element.id == s_element.element.parent.unwrap());
+      debug!("Parentless current search: {}", s_element.element.id);
+      let found_element = find_element(elements, s_element.element.parent.unwrap(), 1);
       match found_element {
         Some(el) => {
-          el.add_child(s_element.clone());
+          debug!("Found {}. Adding {} to element children.", el.element.id, s_element.element.id);
+          (*el).add_child(s_element.clone());
         },
         None => {
           // Handle on next iteration of function
+          debug!("Not found {} in child_elements. Adding to next iteration", s_element.element.parent.unwrap());
           next_child_elements.push(s_element.clone());
         }
       }
@@ -81,11 +109,7 @@ async fn get_elements_of_twin(
                   children: Vec::new()
                 };
 
-                let found_element = s_elements.iter_mut().find(|item| item.element.id == element.parent.unwrap());
-                match found_element {
-                  Some(el) => el.add_child(new_element),
-                  None => parentless_elements.push(new_element)
-                }
+                parentless_elements.push(new_element);
               }
             }
 
@@ -94,7 +118,7 @@ async fn get_elements_of_twin(
             }
             
             return HttpResponse::Ok().json(VecDataResponse {
-              message: format!("Found {} elements for twin.", s_elements.len()),
+              message: format!("Found {} root elements for twin.", s_elements.len()),
               data: s_elements,
               status: true
             });

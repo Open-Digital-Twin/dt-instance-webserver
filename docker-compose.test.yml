@@ -9,7 +9,7 @@ services:
       - scylla-db
       - scylla-manager
     environment:
-      - RUST_LOG=info
+      - RUST_LOG=debug
       - SERVER_ADDRESS=0.0.0.0:8080
       - DB_ADDRESS=scylla-db:9042
       - SECRET_KEY=Xqv8jTGLxT

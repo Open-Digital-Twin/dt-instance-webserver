@@ -144,7 +144,7 @@ fn get_twin_elements() {
   let source_7 = resp_source_7_body.data;
 
   let element_register_3 = ElementRegister {
-    name: "Element with no sources".to_string(),
+    name: "Parent Element with no sources".to_string(),
     parent: None
   };
   
@@ -154,7 +154,7 @@ fn get_twin_elements() {
   let element_5 = resp_8_body.data;
 
   let element_register_3_child = ElementRegister {
-    name: "Child Element with no sources".to_string(),
+    name: "Child Element with no sources and with children".to_string(),
     parent: Some(element_5.id)
   };
 
@@ -183,29 +183,45 @@ fn get_twin_elements() {
   let element_5_cc_3 = resp_12_body.data;
 
   let resp_source_8 = put("source").bearer_auth(&token).json(&SourceRegister {
-    name: "Source child".to_string(),
+    name: "Source cc 1".to_string(),
     element: element_5_cc_1.id
   }).send().unwrap();
   assert_eq!(resp_source_8.status(), StatusCode::CREATED);
   let resp_source_8_body: DataResponseWithTopics<Source> = resp_source_8.json().unwrap();
 
   let resp_source_9 = put("source").bearer_auth(&token).json(&SourceRegister {
-    name: "Source child".to_string(),
+    name: "Source cc 2".to_string(),
     element: element_5_cc_2.id
   }).send().unwrap();
   assert_eq!(resp_source_9.status(), StatusCode::CREATED);
   let resp_source_9_body: DataResponseWithTopics<Source> = resp_source_9.json().unwrap();
 
   let resp_source_10 = put("source").bearer_auth(&token).json(&SourceRegister {
-    name: "Source child".to_string(),
+    name: "Source cc 3".to_string(),
     element: element_5_cc_3.id
   }).send().unwrap();
   assert_eq!(resp_source_10.status(), StatusCode::CREATED);
   let resp_source_10_body: DataResponseWithTopics<Source> = resp_source_10.json().unwrap();
 
+  let resp_source_11 = put("source").bearer_auth(&token).json(&SourceRegister {
+    name: "Source cc 3 again".to_string(),
+    element: element_5_cc_3.id
+  }).send().unwrap();
+  assert_eq!(resp_source_11.status(), StatusCode::CREATED);
+  let resp_source_11_body: DataResponseWithTopics<Source> = resp_source_11.json().unwrap();
+
+    let resp_source_12 = put("source").bearer_auth(&token).json(&SourceRegister {
+    name: "Source cc 1 again".to_string(),
+    element: element_5_cc_1.id
+  }).send().unwrap();
+  assert_eq!(resp_source_12.status(), StatusCode::CREATED);
+  let resp_source_12_body: DataResponseWithTopics<Source> = resp_source_12.json().unwrap();
+
   let source_cc_1 = resp_source_8_body.data;
   let source_cc_2 = resp_source_9_body.data;
   let source_cc_3 = resp_source_10_body.data;
+  let source_cc_3_again = resp_source_11_body.data;
+  let source_cc_1_again = resp_source_12_body.data;
 
   {
     // Get elements of twin
@@ -302,8 +318,9 @@ fn get_twin_elements() {
 
     assert_eq!(s_element_5_cc_1.element, element_5_cc_1);
     assert_eq!(s_element_5_cc_1.children.len(), 0);
-    assert_eq!(s_element_5_cc_1.sources.len(), 1);
+    assert_eq!(s_element_5_cc_1.sources.len(), 2);
     assert_eq!(s_element_5_cc_1.sources[0], source_cc_1);
+    assert_eq!(s_element_5_cc_1.sources[1], source_cc_1_again);
 
     assert_eq!(s_element_5_cc_2.element, element_5_cc_2);
     assert_eq!(s_element_5_cc_2.children.len(), 0);
@@ -312,7 +329,8 @@ fn get_twin_elements() {
 
     assert_eq!(s_element_5_cc_3.element, element_5_cc_3);
     assert_eq!(s_element_5_cc_3.children.len(), 0);
-    assert_eq!(s_element_5_cc_3.sources.len(), 1);
+    assert_eq!(s_element_5_cc_3.sources.len(), 2);
     assert_eq!(s_element_5_cc_3.sources[0], source_cc_3);
+    assert_eq!(s_element_5_cc_3.sources[1], source_cc_3_again);
   }
 }
