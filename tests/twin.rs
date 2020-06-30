@@ -319,8 +319,10 @@ fn get_twin_elements() {
     assert_eq!(s_element_5_cc_1.element, element_5_cc_1);
     assert_eq!(s_element_5_cc_1.children.len(), 0);
     assert_eq!(s_element_5_cc_1.sources.len(), 2);
-    assert_eq!(s_element_5_cc_1.sources[0], source_cc_1);
-    assert_eq!(s_element_5_cc_1.sources[1], source_cc_1_again);
+    let s_element_5_cc_1_source = s_element_5_cc_1.sources.iter().find(|&source| source.id == source_cc_1.id).unwrap();
+    let s_element_5_cc_1_source_again = s_element_5_cc_1.sources.iter().find(|&source| source.id == source_cc_1_again.id).unwrap();
+    assert_eq!(s_element_5_cc_1_source, source_cc_1);
+    assert_eq!(s_element_5_cc_1_source_again, source_cc_1_again);
 
     assert_eq!(s_element_5_cc_2.element, element_5_cc_2);
     assert_eq!(s_element_5_cc_2.children.len(), 0);
@@ -330,7 +332,9 @@ fn get_twin_elements() {
     assert_eq!(s_element_5_cc_3.element, element_5_cc_3);
     assert_eq!(s_element_5_cc_3.children.len(), 0);
     assert_eq!(s_element_5_cc_3.sources.len(), 2);
-    assert_eq!(s_element_5_cc_3.sources[0], source_cc_3);
-    assert_eq!(s_element_5_cc_3.sources[1], source_cc_3_again);
+    let s_element_5_cc_3_source = s_element_5_cc_3.sources.iter().find(|&source| source.id == source_cc_3.id).unwrap();
+    let s_element_5_cc_3_source_again = s_element_5_cc_3.sources.iter().find(|&source| source.id == source_cc_3_again.id).unwrap();
+    assert_eq!(s_element_5_cc_3_source, source_cc_3);
+    assert_eq!(s_element_5_cc_3_source_again, source_cc_3_again);
   }
 }

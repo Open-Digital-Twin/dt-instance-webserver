@@ -24,4 +24,4 @@ jobs:
       - name: Restart Container
         run: docker-compose -f docker-compose.test.yml restart twin-webserver
       - name: Run tests
-        run: docker-compose -f docker-compose.test.yml exec -T twin-webserver cargo test --all
+        run: docker-compose -f docker-compose.test.yml exec -T twin-webserver cargo test --tests
