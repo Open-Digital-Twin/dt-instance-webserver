@@ -22,6 +22,6 @@ jobs:
       - name: Wait and init DB.
         run: sleep 60; docker-compose -f docker-compose.test.yml exec -T scylla-db cqlsh -f /db/db.cql; docker-compose -f docker-compose.test.yml exec -T scylla-db cqlsh -f /db/init.cql
       - name: Restart Container
-        run: docker-compose -f docker-compose.test.yml restart dt-instance-webserver_twin-webserver_1
+        run: docker-compose -f docker-compose.test.yml restart twin-webserver
       - name: Run tests
-        run: docker-compose -f docker-compose.test.yml exec -T dt-instance-webserver_twin-webserver_1 cargo test --all
+        run: docker-compose -f docker-compose.test.yml exec -T twin-webserver cargo test --all
