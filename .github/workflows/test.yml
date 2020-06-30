@@ -1,0 +1,25 @@
+name: Rust
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+env:
+  CARGO_TERM_COLOR: always
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.REPO_PAT }}
+          submodules: recursive
+      - name: Build
+        run: docker-compose -f docker-compose.test.yml up -d  
+      - name: Wait and init DB.
+        run: sleep 60; docker-compose -f docker-compose.test.yml exec -T scylla-db cqlsh -f /db/db.cql; docker-compose -f docker-compose.test.yml exec -T scylla-db cqlsh -f /db/init.cql
+      - name: Restart Container
+        run: docker-compose -f docker-compose.test.yml restart dt-instance-webserver_twin-webserver_1
+      - name: Run tests
+        run: docker-compose -f docker-compose.test.yml exec -T dt-instance-webserver_twin-webserver_1 cargo test --all
