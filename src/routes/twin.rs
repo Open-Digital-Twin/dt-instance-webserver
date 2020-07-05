@@ -2,7 +2,8 @@ use crate::common::models::app::{CurrentSession};
 use crate::common::models::response::{Response, VecDataResponse};
 use crate::common::models::twin::*;
 use crate::common::models::request::Serializeable;
-use crate::common::db::{get_twin_elements, get_element_sources};
+
+use crate::db::{get_twin_elements, get_element_sources};
 
 use crate::middlewares::auth::AuthValidator;
 

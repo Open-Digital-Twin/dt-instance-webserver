@@ -151,19 +151,6 @@ async fn get_sources_by_element(
   }
 }
 
-// fn delete_element_by_id(session: web::Data<Arc<CurrentSession>>, id: String, twin: String) -> Result<String, String> {
-//   let r = session.query_with_values(
-//     "DELETE FROM element WHERE id = ? AND twin = ?",
-//     query_values!("id" => id, "twin" => twin)
-//   )
-//     .expect("Delete by id the element of twin");
-  
-//   match r {
-//     Ok(_) => Ok(format!("Success deleting element {}.", id)),
-//     Err(_e) => Err(format!("Error deleting element.")),
-//   }  
-// }
-
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
   cfg.service(put_element);
   cfg.service(get_element);

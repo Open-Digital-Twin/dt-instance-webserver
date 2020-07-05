@@ -12,18 +12,23 @@ use actix_web::{web};
 use crate::common::models::twin::{Source, Element};
 use crate::common::models::app::{CurrentSession};
 
-pub fn get_by_id<T: TryFromRow>(session: web::Data<Arc<CurrentSession>>, item_id: String, table: String) -> Result<T, (String, usize)> {
-  let id: Uuid;
-  
-  match Uuid::parse_str(&item_id) {
-    Ok(_id) => { id = _id },
+fn str_to_uuid(item_id: String) -> Result<Uuid, (String, usize)> {
+  return match Uuid::parse_str(&item_id) {
+    Ok(id) => Ok(id),
     Err(_error) => {
       match to_uuid(&item_id) {
-        Ok(_id) => { id = _id },
-        Err(_) => { return Err((format!("Invalid input."), 400)); }
+        Ok(_id) => Ok(_id),
+        Err(_) => Err((format!("Invalid input."), 400))
       }
     }
   }
+}
+
+pub fn get_by_id<T: TryFromRow>(session: web::Data<Arc<CurrentSession>>, item_id: String, table: String) -> Result<T, (String, usize)> {
+  let id = match str_to_uuid(item_id) {
+    Ok(_id) => _id,
+    Err(e) => return Err(e)
+  };
 
   let r = session.query(format!("SELECT * FROM {} WHERE id = {}", table, id));
 
@@ -38,20 +43,20 @@ pub fn get_by_id<T: TryFromRow>(session: web::Data<Arc<CurrentSession>>, item_id
 }
 
 #[allow(dead_code)]
-pub fn delete_by_id<T: TryFromRow>(session: web::Data<Arc<CurrentSession>>, item_id: String, table: String) -> Result<String, (String, usize)> {
-  let id: Uuid;
+pub fn delete_by_id(session: web::Data<Arc<CurrentSession>>, item_id: String, table: String) -> Result<String, (String, usize)> {
+  let r = delete_by_id_where(session, item_id, table, "id".to_string());
 
-  match Uuid::parse_str(&item_id) {
-    Ok(_id) => { id = _id },
-    Err(_error) => {
-      match to_uuid(&item_id) {
-        Ok(_id) => { id = _id },
-        Err(_) => { return Err((format!("Invalid input."), 400)); }
-      }
-    }
-  }
+  return r;
+}
 
-  let r = session.query(format!("DELETE FROM {} WHERE id = {}", table, id));
+#[allow(dead_code)]
+pub fn delete_by_id_where(session: web::Data<Arc<CurrentSession>>, item_id: String, table: String, element: String) -> Result<String, (String, usize)> {
+  let id = match str_to_uuid(item_id) {
+    Ok(_id) => _id,
+    Err(e) => return Err(e)
+  };
+
+  let r = session.query(format!("DELETE FROM {} WHERE {} = {}", table, element, id));
 
   return match r {
     Ok(_) => Ok(format!("Deleted {} {}.", table, id)),
@@ -61,17 +66,10 @@ pub fn delete_by_id<T: TryFromRow>(session: web::Data<Arc<CurrentSession>>, item
 
 #[allow(dead_code)]
 pub fn get_element_sources(session: web::Data<Arc<CurrentSession>>, element_id: String) -> Result<Vec<Source>, (String, usize)> {
-  let id: Uuid;
-
-  match Uuid::parse_str(&element_id) {
-    Ok(_id) => { id = _id },
-    Err(_error) => {
-      match to_uuid(&element_id) {
-        Ok(_id) => { id = _id },
-        Err(_) => { return Err((format!("Invalid input."), 400)); }
-      }
-    }
-  }
+  let id = match str_to_uuid(element_id) {
+    Ok(_id) => _id,
+    Err(e) => return Err(e)
+  };
 
   let r = session.query(format!("SELECT * FROM source WHERE element = {}", id));
 

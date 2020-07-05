@@ -6,14 +6,14 @@ use crate::common::models::app::{Environment, SOURCE_DATA_TOPIC, SOURCE_DATA_ACK
 use crate::common::models::response::{Response, DataResponse, DataResponseWithTopics};
 use crate::common::models::twin::*;
 
-use crate::common::db::get_by_id;
+use crate::db::{get_by_id, delete_by_id, delete_by_id_where};
 
 use crate::{CurrentSession};
 use crate::middlewares::auth::AuthValidator;
 use std::sync::Arc;
 
 use log::{info};
-use actix_web::{get, put, web, HttpResponse};
+use actix_web::{get, put, delete, web, HttpResponse};
 
 use std::collections::HashMap;
 
@@ -83,24 +83,51 @@ async fn get_source(
       data: source,
       status: true
     }),
-    Err((error, status)) => {
-      let mut response;
-
-      match status {
-        400 => response = HttpResponse::BadRequest(),
-        404 => response = HttpResponse::NotFound(),
-        _ => response = HttpResponse::BadRequest()
-      }
-      
-      response.json(Response {
-        message: error,
-        status: false
-      })
-    }
+    Err((error, status)) => handle_req_error(error, status)
   }
+}
+
+#[delete("{source_id}")]
+async fn delete_source(
+  _auth: AuthValidator,
+  session: web::Data<Arc<CurrentSession>>,
+  source_id: web::Path<String>
+) -> HttpResponse {
+  let id: String = source_id.to_string();
+
+  // Delete source.
+  match delete_by_id(session.clone(), id.clone(), "source".to_string()) {
+    Ok(message) => {
+      // Delete source data.
+      match delete_by_id_where(session, id, "source_data".to_string(), "source".to_string()) {
+        Ok(message_sd) => {
+          HttpResponse::Ok().json(Response {
+            message: format!("{}\n{}", message, message_sd),
+            status: true
+          })
+        },
+        Err((error, status)) => handle_req_error(error, status)
+      }
+    },
+    Err((error, status)) => handle_req_error(error, status)
+  }
+}
+
+fn handle_req_error(error: String, status: usize) -> HttpResponse {
+  let mut response = match status {
+    400 => HttpResponse::BadRequest(),
+    404 => HttpResponse::NotFound(),
+    _ => HttpResponse::BadRequest()
+  };
+
+  response.json(Response {
+    message: error,
+    status: false
+  })
 }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
   cfg.service(get_source);
   cfg.service(put_source);
+  cfg.service(delete_source);
 }
