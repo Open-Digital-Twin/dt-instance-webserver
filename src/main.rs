@@ -34,6 +34,7 @@ use common::models::app::*;
 use common::db::get_db_session;
 
 mod routes;
+mod db;
 
 fn strip_comment<'a>(input: &'a str, markers: &[char]) -> &'a str {
   input

@@ -4,7 +4,7 @@ use cdrs::frame::traits::TryFromRow;
 use crate::common::models::app::{CurrentSession, Environment};
 use crate::common::models::response::{Response, DataResponse, VecDataResponse};
 use crate::common::models::twin::*;
-use crate::common::db::{get_by_id, get_element_sources};
+use crate::db::{get_by_id, get_element_sources};
 
 use crate::middlewares::auth::AuthValidator;
 
