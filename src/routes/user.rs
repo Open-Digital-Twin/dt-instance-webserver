@@ -193,7 +193,7 @@ async fn temp(_auth: AuthValidator) -> HttpResponse {
 
   HttpResponse::Ok().json(Response {
     status: true,
-    message: "User logged in.".to_string()
+    message: "User is logged in.".to_string()
   })
 }
 
