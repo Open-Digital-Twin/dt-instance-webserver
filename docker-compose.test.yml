@@ -20,7 +20,7 @@ services:
       - .:/tmp/dt-instance-webserver
     ports:
       - "8080:8080"
-    restart: on-failure
+    restart: always
   scylla-manager:
     image: scylladb/scylla-manager
     container_name: scylla-manager
