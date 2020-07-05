@@ -7,6 +7,7 @@ use crate::common::models::twin::*;
 use crate::db::{get_by_id, get_element_sources};
 
 use crate::middlewares::auth::AuthValidator;
+use crate::routes::handle_req_error;
 
 use std::sync::Arc;
 
@@ -49,25 +50,6 @@ async fn put_element(
   }
 }
 
-// fn get_element_by_id(session: web::Data<Arc<CurrentSession>>, id: String, twin: String) -> Result<User, String> {
-//   let rows = session.query_with_values(
-//     "SELECT * FROM element WHERE id = ? AND twin = ? ALLOW FILTERING",
-//     query_values!("id" => id, "twin" => twin)
-//   )
-//   .expect("select by id the element of twin")
-//     .get_body().unwrap()
-//     .into_rows().unwrap();
-
-//   if !rows.is_empty() {
-//     let element = match Element::try_from_row(rows[0].clone()) {
-//       Ok(_model) => _model,
-//       Err(_) => return Err("Could not convert rows to Element model.".to_string())
-//     };
-//     return Ok(element);
-//   }
-//   return Err("No element with informed id on this twin".to_string());
-// }
-
 fn insert_element(session: web::Data<Arc<CurrentSession>>, element: &Element) -> Result<String, String> {
   let r;
 
@@ -105,20 +87,7 @@ async fn get_element(
       data: element,
       status: true
     }),
-    Err((error, status)) => {
-      let mut response;
-
-      match status {
-        400 => response = HttpResponse::BadRequest(),
-        404 => response = HttpResponse::NotFound(),
-        _ => response = HttpResponse::BadRequest()
-      }
-
-      response.json(Response {
-        message: error,
-        status: false
-      })
-    }
+    Err((error, status)) => handle_req_error(error, status)
   }
 }
 
@@ -134,20 +103,7 @@ async fn get_sources_by_element(
       data: elements,
       status: true
     }),
-    Err((error, status)) => {
-      let mut response;
-
-      match status {
-        400 => response = HttpResponse::BadRequest(),
-        404 => response = HttpResponse::NotFound(),
-        _ => response = HttpResponse::BadRequest()
-      }
-
-      response.json(Response {
-        message: error,
-        status: false
-      })
-    }
+    Err((error, status)) => handle_req_error(error, status)
   }
 }
 

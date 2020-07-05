@@ -1,11 +1,13 @@
 use crate::common::models::app::{CurrentSession};
-use crate::common::models::response::{Response, VecDataResponse};
+use crate::common::models::response::{VecDataResponse};
 use crate::common::models::twin::*;
 use crate::common::models::request::Serializeable;
 
 use crate::db::{get_twin_elements, get_element_sources};
 
 use crate::middlewares::auth::AuthValidator;
+
+use crate::routes::handle_req_error;
 
 use std::sync::Arc;
 
@@ -134,20 +136,7 @@ async fn get_elements_of_twin(
         status: true
       });
     },
-    Err((error, status)) => {
-      let mut response;
-
-      match status {
-        400 => response = HttpResponse::BadRequest(),
-        404 => response = HttpResponse::NotFound(),
-        _ => response = HttpResponse::BadRequest()
-      }
-
-      response.json(Response {
-        message: error,
-        status: false
-      })
-    }
+    Err((error, status)) => handle_req_error(error, status)
   }
 }
 

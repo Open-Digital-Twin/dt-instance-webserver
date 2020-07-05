@@ -10,6 +10,8 @@ use crate::db::{get_by_id, delete_by_id, delete_by_id_where};
 
 use crate::{CurrentSession};
 use crate::middlewares::auth::AuthValidator;
+use crate::routes::handle_req_error;
+
 use std::sync::Arc;
 
 use log::{info};
@@ -111,19 +113,6 @@ async fn delete_source(
     },
     Err((error, status)) => handle_req_error(error, status)
   }
-}
-
-fn handle_req_error(error: String, status: usize) -> HttpResponse {
-  let mut response = match status {
-    400 => HttpResponse::BadRequest(),
-    404 => HttpResponse::NotFound(),
-    _ => HttpResponse::BadRequest()
-  };
-
-  response.json(Response {
-    message: error,
-    status: false
-  })
 }
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
