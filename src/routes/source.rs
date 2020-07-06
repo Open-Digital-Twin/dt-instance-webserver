@@ -6,7 +6,7 @@ use crate::common::models::app::{Environment, SOURCE_DATA_TOPIC, SOURCE_DATA_ACK
 use crate::common::models::response::{Response, DataResponse, DataResponseWithTopics};
 use crate::common::models::twin::*;
 
-use crate::db::{get_by_id, delete_by_id, delete_by_id_where};
+use crate::db::{get_by_id, delete_by_id, delete_by_where};
 
 use crate::{CurrentSession};
 use crate::middlewares::auth::AuthValidator;
@@ -101,7 +101,7 @@ async fn delete_source(
   match delete_by_id(session.clone(), id.clone(), "source".to_string()) {
     Ok(message) => {
       // Delete source data.
-      match delete_by_id_where(session, id, "source_data".to_string(), "source".to_string()) {
+      match delete_by_where(session, id, "source_data".to_string(), "source".to_string()) {
         Ok(message_sd) => {
           HttpResponse::Ok().json(Response {
             message: format!("{}\n{}", message, message_sd),
