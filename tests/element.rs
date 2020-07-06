@@ -381,19 +381,19 @@ fn delete_element() {
   assert_eq!(resp_created_sources_deleted.status(), StatusCode::OK);
 
   let resp_created_sources_body_deleted: VecDataResponse<Source> = resp_created_sources_deleted.json().unwrap();
-  let obtained_sources = resp_created_sources_body_deleted.data;
-  assert_eq!(obtained_sources.len(), 0);
+  let obtained_sources_2 = resp_created_sources_body_deleted.data;
+  assert_eq!(obtained_sources_2.len(), 0);
 
   // Get of deleted sources should fail
   let resp_source_1_deleted = get(format!("source/{}", source_1.id).as_str()).bearer_auth(&token).send().unwrap();
   assert_eq!(resp_source_1_deleted.status(), StatusCode::NOT_FOUND);
   let resp_source_1_deleted_body: Response = resp_source_1_deleted.json().unwrap();
-  assert_eq!(resp_source_1_deleted_body, false);
+  assert_eq!(resp_source_1_deleted_body.status, false);
 
   let resp_source_2_deleted = get(format!("source/{}", source_2.id).as_str()).bearer_auth(&token).send().unwrap();
   assert_eq!(resp_source_2_deleted.status(), StatusCode::NOT_FOUND);
   let resp_source_2_deleted_body: Response = resp_source_2_deleted.json().unwrap();
-  assert_eq!(resp_source_2_deleted_body, false);
+  assert_eq!(resp_source_2_deleted_body.status, false);
 
   // Data of deleted sources should be deleted
   let deleted_source_data_rows = session.query(format!("SELECT * FROM source_data WHERE source IN ({}, {})", source_1.id, source_2.id)).unwrap()

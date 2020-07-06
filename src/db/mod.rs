@@ -44,13 +44,13 @@ pub fn get_by_id<T: TryFromRow>(session: web::Data<Arc<CurrentSession>>, item_id
 
 #[allow(dead_code)]
 pub fn delete_by_id(session: web::Data<Arc<CurrentSession>>, item_id: String, table: String) -> Result<String, (String, usize)> {
-  let r = delete_by_id_where(session, item_id, table, "id".to_string());
+  let r = delete_by_where(session, item_id, table, "id".to_string());
 
   return r;
 }
 
 #[allow(dead_code)]
-pub fn delete_by_id_where(session: web::Data<Arc<CurrentSession>>, item_id: String, table: String, element: String) -> Result<String, (String, usize)> {
+pub fn delete_by_where(session: web::Data<Arc<CurrentSession>>, item_id: String, table: String, element: String) -> Result<String, (String, usize)> {
   let id = match str_to_uuid(item_id) {
     Ok(_id) => _id,
     Err(e) => return Err(e)
@@ -61,6 +61,16 @@ pub fn delete_by_id_where(session: web::Data<Arc<CurrentSession>>, item_id: Stri
   return match r {
     Ok(_) => Ok(format!("Deleted {} {}.", table, id)),
     Err(_) => Ok(format!("Error deleting {} {}.", table, id))
+  };
+}
+
+#[allow(dead_code)]
+pub fn delete_where_in(session: web::Data<Arc<CurrentSession>>, items: Vec<String>, table: String, element: String) -> Result<String, (String, usize)> {
+  let r = session.query(format!("DELETE FROM {} WHERE {} in ({})", table, element, items.join(",")));
+
+  return match r {
+    Ok(_) => Ok(format!("Deleted items from {}.", table)),
+    Err(_) => Ok(format!("Error deleting items {}.", table))
   };
 }
 
