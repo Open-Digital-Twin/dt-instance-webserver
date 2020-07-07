@@ -5,6 +5,7 @@ use cdrs::frame::traits::TryFromRow;
 use crate::common::models::app::{Environment, SOURCE_DATA_TOPIC, SOURCE_DATA_ACK_TOPIC};
 use crate::common::models::response::{Response, DataResponse, DataResponseWithTopics};
 use crate::common::models::twin::*;
+use crate::common::models::request::{DataInterval};
 
 use crate::db::{get_by_id, delete_by_id, delete_by_where};
 
@@ -115,8 +116,48 @@ async fn delete_source(
   }
 }
 
+#[delete("{source_id}/data")]
+async fn delete_source_data(
+  _auth: AuthValidator,
+  session: web::Data<Arc<CurrentSession>>,
+  source_id: web::Path<String>,
+  params: Option<web::Query<DataInterval>>
+) -> HttpResponse {
+  let id: String = source_id.to_string();
+
+  match params {
+    Some(p) => {
+      let mut delete_query = format!("DELETE FROM source_data WHERE source = {}", id);
+
+      if p.since.is_some() {
+        delete_query.push_str(format!(" AND stamp >= {}", p.since.unwrap()).as_str());
+      }
+
+      if p.until.is_some() {
+        delete_query.push_str(format!(" AND stamp <= {}", p.until.unwrap()).as_str());
+      }
+
+      if (p.since.is_none() && p.until.is_none() && p.force.is_some() && p.force.unwrap()) || p.since.is_some() || p.until.is_some() {
+        let r = session.query(delete_query);
+
+        match r {
+          Ok(_) => HttpResponse::Ok().json(Response {
+            message: format!("Deleted source data from source {}.", id),
+            status: true
+          }),
+          Err(_) => handle_req_error("Error deleting source data.".to_string(), 500)
+        }
+      } else {
+        handle_req_error("Invalid input request.".to_string(), 400)
+      }
+    },
+    None => handle_req_error("Invalid input request.".to_string(), 400)
+  }
+}
+
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
   cfg.service(get_source);
   cfg.service(put_source);
   cfg.service(delete_source);
+  cfg.service(delete_source_data);
 }

@@ -10,6 +10,7 @@ pub fn handle_req_error(error: String, status: usize) -> HttpResponse {
   let mut response = match status {
     400 => HttpResponse::BadRequest(),
     404 => HttpResponse::NotFound(),
+    500 => HttpResponse::InternalServerError(),
     _ => HttpResponse::BadRequest()
   };
 
