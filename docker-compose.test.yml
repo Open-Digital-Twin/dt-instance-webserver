@@ -1,10 +1,10 @@
 version: '3'
 services:
-  twin-webserver:
+  sut:
     build: 
       context: .
       dockerfile: Dockerfile.test
-    image: "dt-instance-webserver"
+    image: "opendigitaltwin/dt-instance-webserver"
     depends_on:
       - scylla-db
       - scylla-manager
